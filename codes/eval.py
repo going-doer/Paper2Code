@@ -6,7 +6,10 @@ import argparse
 from utils import read_python_files, extract_planning, content_to_json, \
         num_tokens_from_messages, read_all_files, extract_json_from_string, get_now_str, print_log_cost
 
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+client = OpenAI(
+    api_key = os.environ["OPENAI_API_KEY"],
+    base_url = os.environ["OPENAI_BASE_URL"]
+)
 
 def api_call(request_json):
     completion = client.chat.completions.create(**request_json)

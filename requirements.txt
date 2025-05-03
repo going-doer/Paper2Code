@@ -2,3 +2,4 @@ openai>=1.65.4
 vllm>=0.6.4.post1
 transformers>=4.46.3
 tiktoken>=0.9.0
+python-dotenv

@@ -5,6 +5,9 @@ import argparse
 import os
 import sys
 from utils import print_response, print_log_cost, load_accumulated_cost, save_accumulated_cost
+from dotenv import load_dotenv
+
+load_dotenv()
 
 parser = argparse.ArgumentParser()
 
@@ -17,7 +20,10 @@ parser.add_argument('--output_dir',type=str, default="")
 
 args    = parser.parse_args()
 
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+client = OpenAI(
+    api_key = os.environ["OPENAI_API_KEY"],
+    base_url = os.environ["OPENAI_BASE_URL"]
+)
 
 paper_name = args.paper_name
 gpt_version = args.gpt_version

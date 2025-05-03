@@ -5,6 +5,9 @@ from tqdm import tqdm
 import re
 import sys
 import copy
+from dotenv import load_dotenv
+
+load_dotenv()
 from utils import extract_planning, content_to_json, extract_code_from_content, print_response, print_log_cost, load_accumulated_cost, save_accumulated_cost
 import argparse
 
@@ -19,7 +22,10 @@ parser.add_argument('--output_dir',type=str, default="")
 parser.add_argument('--output_repo_dir',type=str, default="")
 
 args    = parser.parse_args()
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+client = OpenAI(
+    api_key = os.environ["OPENAI_API_KEY"],
+    base_url = os.environ["OPENAI_BASE_URL"]
+)
 
 paper_name = args.paper_name
 gpt_version = args.gpt_version

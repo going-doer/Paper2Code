@@ -6,6 +6,9 @@ import sys
 from utils import extract_planning, content_to_json, print_response, print_log_cost, load_accumulated_cost, save_accumulated_cost
 import copy
 
+from dotenv import load_dotenv
+
+load_dotenv()
 import argparse
 
 parser = argparse.ArgumentParser()

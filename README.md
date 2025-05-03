@@ -28,8 +28,16 @@ Our method outperforms strong baselines on both Paper2Code and PaperBench and pr
 ```bash
 pip install openai
 
+# You can set environment variables by exporting them directly:
 export OPENAI_API_KEY="<OPENAI_API_KEY>"
-
+# # For custom OpenAI-compatible API endpoints
+export OPENAI_BASE_URL="<OPENAI_BASE_URL>"  # Optional
+ 
+# Alternatively, you can create a .env file in the project root with your API key and base URL (optional):
+# pip install python-dotenv
+# OPENAI_API_KEY="<YOUR_OPENAI_API_KEY>"
+# OPENAI_BASE_URL="<YOUR_OPENAI_BASE_URL>" # Optional
+ 
 cd scripts
 bash run.sh
 ```
@@ -118,6 +126,8 @@ python ./s2orc-doc2json/doc2json/grobid2json/process_pdf.py \
 ```bash
 # Using the PDF-based JSON format of the paper
 export OPENAI_API_KEY="<OPENAI_API_KEY>"
+# For custom OpenAI-compatible API endpoints
+export OPENAI_BASE_URL="<OPENAI_BASE_URL>"  # Optional
 
 cd scripts
 bash run.sh
@@ -126,6 +136,8 @@ bash run.sh
 ```bash
 # Using the LaTeX source of the paper
 export OPENAI_API_KEY="<OPENAI_API_KEY>"
+# For custom OpenAI-compatible API endpoints
+export OPENAI_BASE_URL="<OPENAI_BASE_URL>"  # Optional
 
 cd scripts
 bash run_latex.sh

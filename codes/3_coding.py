@@ -5,6 +5,9 @@ from tqdm import tqdm
 import re
 import sys
 import copy
+from dotenv import load_dotenv
+
+load_dotenv()
 from utils import extract_planning, content_to_json, extract_code_from_content, print_response, print_log_cost, load_accumulated_cost, save_accumulated_cost
 import argparse
 

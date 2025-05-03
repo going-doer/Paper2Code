@@ -237,19 +237,33 @@ def cal_cost(response_json, model_name):
     }
 
     
-    prompt_tokens = response_json["usage"]["prompt_tokens"]
-    completion_tokens = response_json["usage"]["completion_tokens"]
-    cached_tokens = response_json["usage"]["prompt_tokens_details"].get("cached_tokens", 0)
+    usage_info = response_json.get("usage", {})
 
+    prompt_tokens = usage_info.get("prompt_tokens", 0)
+    completion_tokens = usage_info.get("completion_tokens", 0)
+    cached_tokens = (usage_info.get("prompt_tokens_details") or {}).get("cached_tokens", 0)
+ 
     # input token = (prompt_tokens - cached_tokens)
     actual_input_tokens = prompt_tokens - cached_tokens
     output_tokens = completion_tokens
 
-    cost_info = model_cost[model_name]
+    cost_info = model_cost.get(model_name)
+    if cost_info is None:
+        print(f"Warning: Cost information not available for model: {model_name}. Returning zero cost.")
+        return {
+            'model_name': model_name,
+            'actual_input_tokens': actual_input_tokens,
+            'input_cost': 0.0,
+            'cached_tokens': cached_tokens,
+            'cached_input_cost': 0.0,
+            'output_tokens': output_tokens,
+            'output_cost': 0.0,
+            'total_cost': 0.0,
+        }
 
-    input_cost = (actual_input_tokens / 1_000_000) * cost_info['input']
-    cached_input_cost = (cached_tokens / 1_000_000) * cost_info['cached_input']
-    output_cost = (output_tokens / 1_000_000) * cost_info['output']
+    input_cost = (actual_input_tokens / 1_000_000) * cost_info.get('input', 0)
+    cached_input_cost = (cached_tokens / 1_000_000) * cost_info.get('cached_input', 0)
+    output_cost = (output_tokens / 1_000_000) * cost_info.get('output', 0)
 
     total_cost = input_cost + cached_input_cost + output_cost
 

@@ -2,7 +2,7 @@
 SETLOCAL
 
 REM Set variables
-SET "GPT_VERSION=tngtech/DeepSeek-R1T-Chimera"
+SET "GPT_VERSION=o3-mini"
 SET "PAPER_NAME=Transformer"
 SET "PDF_PATH=..\examples\Transformer.pdf"
 SET "PDF_JSON_PATH=..\examples\Transformer.json"

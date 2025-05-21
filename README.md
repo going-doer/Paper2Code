@@ -45,6 +45,55 @@ cd scripts
 bash run_llm.sh
 ```
 
+### Using Other LLM Providers with LiteLLM
+- PaperCoder now supports any LLM provider available through [LiteLLM](https://github.com/BerriAI/litellm)
+- Configure your model settings in a `.env` file in the project root directory (see `.env.example`)
+- Supports standard LiteLLM provider syntax including:
+  - AWS Bedrock (`bedrock/model-name`) - requires boto3
+  - OpenAI (`openai/model-name`) - uses o3-mini by default
+  - Anthropic (`anthropic/model-name`) - direct API access
+
+#### LiteLLM Provider Configurations
+Choose ONE of the following provider configurations in your .env file:
+
+##### 1. AWS Bedrock
+```
+AWS_REGION=<your-region>
+BEDROCK_MODEL=<model-name>  # e.g., anthropic.claude-3-sonnet-20240229-v1:0
+DISABLE_PROMPT_CACHING=0
+AWS_SHARED_CREDENTIALS_FILE=~/.aws/credentials
+AWS_CONFIG_FILE=~/.aws/config
+```
+
+##### 2. OpenAI
+```
+OPENAI_API_KEY=<your-openai-api-key>
+OPENAI_MODEL=o3-mini  # Default if not specified
+```
+
+##### 3. Anthropic Direct API
+```
+ANTHROPIC_API_KEY=<your-anthropic-api-key>
+ANTHROPIC_MODEL=claude-3-sonnet-20240229  # Default if not specified
+```
+
+```bash
+# Install LiteLLM
+pip install litellm
+
+# For provider-specific dependencies:
+# - AWS Bedrock requires boto3
+pip install boto3
+
+# Copy and modify the example .env file
+cp .env.example .env
+# Edit the .env file with your provider configuration
+
+# Run the scripts - they will use LiteLLM if configured or fall back to vLLM
+cd scripts
+bash run_llm.sh
+```
+
 ### Output Folder Structure (Only Important Files)
 ```bash
 outputs
@@ -65,11 +114,14 @@ outputs
   - For OpenAI API: `openai`
   - For open-source models: `vllm`
       - If you encounter any issues installing vLLM, please refer to the [official vLLM repository](https://github.com/vllm-project/vllm).
+  - For other LLM providers (like AWS Bedrock): `litellm`
+      - Check the [LiteLLM documentation](https://github.com/BerriAI/litellm) for supported models and configurations.
 
 
 ```bash
 pip install openai 
-pip install vllm 
+pip install vllm
+pip install litellm
 ```
 
 - Or, if you prefer, you can install all dependencies using `pip`:
@@ -132,8 +184,9 @@ bash run_latex.sh
 ```
 
 
-#### Using Open Source Models with vLLM
-- The default model is `deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct`.
+#### Using Open Source Models with vLLM or LiteLLM
+- The default model is `deepseek-ai/DeepSeek-Coder-V2-Lite-Instruct` (using vLLM)
+- For LiteLLM integration, create a `.env` file in the project root with your provider configuration
 
 ```bash
 # Using the PDF-based JSON format of the paper
@@ -145,6 +198,23 @@ bash run_llm.sh
 # Using the LaTeX source of the paper
 cd scripts
 bash run_latex_llm.sh
+```
+
+```bash
+# Example .env configuration (AWS Bedrock with Claude)
+AWS_REGION=eu-north-1
+BEDROCK_MODEL=anthropic.claude-3-sonnet-20240229-v1:0
+DISABLE_PROMPT_CACHING=0
+AWS_SHARED_CREDENTIALS_FILE=~/.aws/credentials
+AWS_CONFIG_FILE=~/.aws/config
+
+# Or for OpenAI
+# OPENAI_API_KEY=your-api-key
+# OPENAI_MODEL=o3-mini
+
+# Or for Anthropic Direct API
+# ANTHROPIC_API_KEY=your-api-key
+# ANTHROPIC_MODEL=claude-3-sonnet-20240229
 ```
 
 ---

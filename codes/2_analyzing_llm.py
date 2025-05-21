@@ -4,10 +4,13 @@ from tqdm import tqdm
 from utils import extract_planning, content_to_json, print_response
 import copy
 import sys
-from transformers import AutoTokenizer
-from vllm import LLM, SamplingParams
+from load_dotenv import load_env_config
+from litellm_utils import get_llm_client, run_inference
 
 import argparse
+
+# Load environment variables
+load_env_config()
 
 parser = argparse.ArgumentParser()
 
@@ -146,36 +149,17 @@ You DON'T need to provide the actual code yet; focus on a thorough, clear analys
 
 
 
-model_name = args.model_name
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-
-if "Qwen" in model_name:
-    llm = LLM(model=model_name, 
-            tensor_parallel_size=tp_size, 
-            max_model_len=max_model_len,
-            gpu_memory_utilization=0.95,
-            trust_remote_code=True, enforce_eager=True, 
-            rope_scaling={"factor": 4.0, "original_max_position_embeddings": 32768, "type": "yarn"})
-    sampling_params = SamplingParams(temperature=temperature, max_tokens=131072)
-
-elif "deepseek" in model_name:
-    llm = LLM(model=model_name, 
-              tensor_parallel_size=tp_size, 
-              max_model_len=max_model_len,
-              gpu_memory_utilization=0.95,
-              trust_remote_code=True, enforce_eager=True)
-    sampling_params = SamplingParams(temperature=temperature, max_tokens=128000, stop_token_ids=[tokenizer.eos_token_id])
+# Initialize LLM client (either LiteLLM from environment or vLLM from args)
+client, tokenizer, is_litellm, sampling_params = get_llm_client(
+    model_name=model_name, 
+    tp_size=tp_size, 
+    max_model_len=max_model_len,
+    temperature=temperature
+)
 
 def run_llm(msg):
-    # vllm
-    prompt_token_ids = [tokenizer.apply_chat_template(messages, add_generation_prompt=True) for messages in [msg]]
-
-    outputs = llm.generate(prompt_token_ids=prompt_token_ids, sampling_params=sampling_params)
-
-    completion = [output.outputs[0].text for output in outputs]
-    
-    return completion[0]
+    """Run inference using either LiteLLM or vLLM based on configuration"""
+    return run_inference(client, tokenizer, is_litellm, sampling_params, msg)
 
 artifact_output_dir=f'{output_dir}/analyzing_artifacts'
 os.makedirs(artifact_output_dir, exist_ok=True)

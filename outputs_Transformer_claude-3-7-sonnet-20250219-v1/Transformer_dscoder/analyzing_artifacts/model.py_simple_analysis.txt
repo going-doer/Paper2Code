@@ -1,0 +1,185 @@
+# Logic Analysis for model.py
+
+## Overview
+The `model.py` file will implement the core Transformer architecture as described in the paper "Attention Is All You Need". This module is responsible for defining the complete model structure including positional encoding, multi-head attention, feed-forward networks, encoder and decoder layers, and the full Transformer model.
+
+## Positional Encoding
+
+### Class: `PositionalEncoding`
+This class implements the positional encoding mechanism described in Section 3.5 of the paper.
+
+#### Logic Flow:
+1. Initialize with model dimension, dropout rate, and maximum sequence length
+2. Create a position encoding tensor of shape (max_len, d_model) using sine and cosine functions
+3. For even indices (2i), use sine function: `PE(pos, 2i) = sin(pos / 10000^(2i/d_model))`
+4. For odd indices (2i+1), use cosine function: `PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))`
+5. Store this tensor as a buffer (not a parameter) in the module
+6. In the forward pass:
+   - Take input embeddings x of shape (batch_size, seq_len, d_model)
+   - Add positional encodings (sliced to match sequence length)
+   - Apply dropout
+   - Return the result
+
+## Multi-Head Attention
+
+### Class: `MultiHeadAttention`
+This class implements the multi-head attention mechanism described in Section 3.2.2 of the paper.
+
+#### Logic Flow:
+1. Initialize with model dimension, number of heads, and dropout rate
+2. Calculate dimensions for each head: d_k = d_v = d_model / n_heads
+3. Create linear projections for queries, keys, values, and output:
+   - W_q: d_model → d_model (will be reshaped per head)
+   - W_k: d_model → d_model (will be reshaped per head)
+   - W_v: d_model → d_model (will be reshaped per head)
+   - W_o: d_model → d_model
+4. Implement `attention` method (scaled dot-product attention):
+   - Compute dot products of queries and keys: QK^T
+   - Scale by 1/√d_k
+   - Apply mask to set masked positions to -∞ (or a very large negative value)
+   - Apply softmax to get attention weights
+   - Compute weighted sum of values
+   - Return attention output and attention weights
+5. In the forward pass:
+   - Project queries, keys, values using respective projections
+   - Reshape to separate batch_size, seq_len, n_heads, d_k dimensions
+   - Transpose to get shape (batch_size, n_heads, seq_len, d_k)
+   - Apply scaled dot-product attention to get attention outputs
+   - Transpose and reshape back to original dimensions
+   - Apply final output projection W_o
+   - Apply dropout
+   - Return attention output
+
+## Position-wise Feed-Forward Networks
+
+### Class: `PositionwiseFeedforward`
+Implements the position-wise feed-forward network described in Section 3.3 of the paper.
+
+#### Logic Flow:
+1. Initialize with model dimension, feed-forward dimension, and dropout rate
+2. Create two linear transformations:
+   - linear1: d_model → d_ff
+   - linear2: d_ff → d_model
+3. In the forward pass:
+   - Apply first linear transformation to input
+   - Apply ReLU activation
+   - Apply dropout
+   - Apply second linear transformation
+   - Apply dropout again
+   - Return the result
+
+## Encoder Layer
+
+### Class: `EncoderLayer`
+Implements a single encoder layer as described in Section 3.1 of the paper.
+
+#### Logic Flow:
+1. Initialize with model dimension, number of heads, feed-forward dimension, and dropout rate
+2. Create components:
+   - self_attn: MultiHeadAttention for self-attention
+   - feed_forward: PositionwiseFeedforward
+   - norm1, norm2: Layer normalization modules
+3. In the forward pass:
+   - Apply self-attention with residual connection and layer normalization:
+     - attn_output = self_attn(x, x, x, mask)
+     - x = norm1(x + dropout(attn_output))
+   - Apply feed-forward network with residual connection and layer normalization:
+     - ff_output = feed_forward(x)
+     - x = norm2(x + dropout(ff_output))
+   - Return the result
+
+## Decoder Layer
+
+### Class: `DecoderLayer`
+Implements a single decoder layer as described in Section 3.1 of the paper.
+
+#### Logic Flow:
+1. Initialize with model dimension, number of heads, feed-forward dimension, and dropout rate
+2. Create components:
+   - self_attn: MultiHeadAttention for masked self-attention
+   - cross_attn: MultiHeadAttention for encoder-decoder attention
+   - feed_forward: PositionwiseFeedforward
+   - norm1, norm2, norm3: Layer normalization modules
+3. In the forward pass:
+   - Apply masked self-attention with residual connection and layer normalization:
+     - attn_output = self_attn(x, x, x, tgt_mask)
+     - x = norm1(x + dropout(attn_output))
+   - Apply encoder-decoder attention with residual connection and layer normalization:
+     - attn_output = cross_attn(x, memory, memory, src_mask)
+     - x = norm2(x + dropout(attn_output))
+   - Apply feed-forward network with residual connection and layer normalization:
+     - ff_output = feed_forward(x)
+     - x = norm3(x + dropout(ff_output))
+   - Return the result
+
+## Transformer Model
+
+### Class: `TransformerModel`
+Implements the complete Transformer model as described in Section 3 of the paper.
+
+#### Logic Flow:
+1. Initialize with configuration, source vocabulary size, and target vocabulary size
+2. Create components:
+   - src_embed: Source embedding + positional encoding
+   - tgt_embed: Target embedding + positional encoding
+   - encoder: Stack of N encoder layers
+   - decoder: Stack of N decoder layers
+   - generator: Linear + softmax to convert decoder output to probabilities
+   - Apply weight sharing between embedding layers and output projection if specified
+3. Implement `encode` method:
+   - Apply source embedding to inputs
+   - Pass through encoder layers with source mask
+   - Return encoder output (memory)
+4. Implement `decode` method:
+   - Apply target embedding to inputs
+   - Pass through decoder layers with memory, source mask, and target mask
+   - Return decoder output
+5. Implement `forward` method:
+   - Call `encode` to get memory
+   - Call `decode` with memory, source mask, target input, and target mask
+   - Return decoder output
+6. Implement `beam_search` method:
+   - Encode source sequence
+   - Initialize beams with start symbol
+   - For each decoding step:
+     - Expand all current beams
+     - Calculate scores for all expanded beams
+     - Select top-k beams based on scores
+     - Check for completed sequences (reached EOS or max length)
+   - Apply length penalty to final scores
+   - Return best translation
+
+## Key Implementation Considerations
+
+1. **Masking**:
+   - In encoder self-attention: mask for padding tokens
+   - In decoder self-attention: mask for padding tokens and future positions
+   - In encoder-decoder attention: mask for padding in source sequence
+
+2. **Weight Sharing**:
+   - Share weights between embedding layers and output projection as mentioned in Section 3.4 of the paper
+   - Multiply embedding weights by √d_model
+
+3. **Scaled Dot-Product Attention**:
+   - Scale the dot products by 1/√d_k to prevent small gradients in softmax
+
+4. **Multi-Head Attention Implementation**:
+   - Efficient reshaping and transposition operations to handle multiple heads in parallel
+   - Proper reshaping back to original dimensions after attention
+
+5. **Beam Search**:
+   - Efficient implementation to handle expanding and pruning beams
+   - Length normalization as described in the paper (`(5+len)^a / (5+1)^a`)
+
+6. **Parameter Initialization**:
+   - Initialize parameters to ensure proper gradient flow through the network
+
+## Dependencies
+- `torch`: For tensor operations and neural network modules
+- `math`: For mathematical functions (sqrt, sin, cos)
+- `copy`: For deep copying objects during beam search
+- `numpy`: For numerical operations
+- `config`: For accessing model configuration parameters
+- `utils`: For mask creation functions
+
+This logic analysis provides a comprehensive breakdown of how each component of the Transformer model should be implemented according to the paper. The design follows the paper's specifications closely, ensuring accurate reproduction of the architecture.

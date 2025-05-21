@@ -1,0 +1,151 @@
+# Logic Analysis for evaluate.py
+
+## Purpose and Scope
+This module is responsible for evaluating a trained Transformer model, computing performance metrics, and handling inference tasks like translation. The primary functionality revolves around:
+
+1. Model inference using beam search for translation
+2. Computing BLEU scores to evaluate translation quality
+3. Averaging model checkpoints for improved performance
+4. Providing utilities for single sentence translation
+
+## Class Structure: Evaluator
+
+### Class Initialization
+```python
+def __init__(config: Config, model: TransformerModel, data_processor: DataProcessor)
+```
+
+The initialization should:
+1. Store the transformer model instance
+2. Store the data processor for tokenization and vocabulary access
+3. Configure beam search parameters from config:
+   - `beam_size` (default: 4 from config.yaml)
+   - `length_penalty` (default: 0.6 from config.yaml)
+   - `max_length_factor` (default: 50 from config.yaml)
+4. Set the device (CPU or GPU) to match the model
+5. Save special token indices (start_token, end_token, pad_token) from the data processor vocabularies
+
+### Method: evaluate(test_data: DataLoader) -> dict
+
+This method evaluates the model on a test dataset and computes metrics:
+
+Logic flow:
+1. Set the model to evaluation mode
+2. Initialize lists to store references and hypotheses
+3. Iterate through test_data batches:
+   - For each batch, get source and target tensors
+   - Create necessary masks for attention
+   - Generate translations using beam search
+   - Convert token IDs to text for both references and hypotheses
+   - Store the results
+4. Calculate BLEU score using the stored references and hypotheses
+5. Return a dictionary containing metrics:
+   - BLEU score
+   - Number of examples evaluated
+   - Additional metrics if needed (e.g., average translation length)
+
+The implementation needs to handle:
+- Batch processing of data with attention masks
+- Converting tensor outputs from beam search to readable text
+- Maintaining proper references and hypotheses lists for BLEU calculation
+
+### Method: translate_sentence(sentence: str) -> str
+
+This method translates a single sentence from source language to target language:
+
+Logic flow:
+1. Tokenize and preprocess the input sentence using the data processor
+2. Convert tokens to tensor and add batch dimension
+3. Create source mask for attention
+4. Use beam search to generate translation
+5. Convert output token IDs back to text
+6. Return the translated sentence as a string
+
+This method should:
+- Handle unknown tokens in the input
+- Apply proper preprocessing (BPE or wordpiece) through the data processor
+- Remove any special tokens from the output (like EOS tokens)
+- Return a clean, readable translation
+
+### Method: compute_bleu(references: List[str], hypotheses: List[str]) -> float
+
+Logic flow:
+1. Format references and hypotheses for sacrebleu:
+   - References should be a list of lists (multiple references per translation)
+   - Hypotheses should be a flat list
+2. Use sacrebleu to compute the BLEU score
+3. Return the corpus BLEU score as a float
+
+Implementation details:
+- Use sacrebleu's corpus_bleu function for BLEU calculation
+- Format references correctly even if there's only one reference per translation
+- Return the score value (not the object) for easy reporting
+
+### Method: average_checkpoints(paths: List[str]) -> None
+
+This method implements checkpoint averaging for improved inference, which was mentioned in the paper:
+
+Logic flow:
+1. Load the first checkpoint to get the model structure
+2. Initialize a dictionary to store the sum of all parameter tensors
+3. For each checkpoint path:
+   - Load the checkpoint state dictionary
+   - Add each parameter tensor to the running sum
+4. Divide all summed parameters by the number of checkpoints
+5. Load the averaged parameters into the model
+
+Implementation details:
+- Handle different model structures if necessary
+- Maintain proper device placement for tensors
+- This method should modify the model in-place
+
+## Beam Search Implementation
+
+While the main beam search is implemented in the TransformerModel class (as specified in the design), the evaluator will need to properly use it:
+
+1. Determine max_len based on input length + max_length_factor (50 by default)
+2. Call model.beam_search with proper parameters:
+   - Source tensor
+   - Max length
+   - Start token index
+   - Beam size
+   - Length penalty alpha
+3. Process the beam search output to get the best translation
+
+## Constraints and Dependencies
+
+1. **Model State**: The model must be in evaluation mode during inference (no dropout)
+2. **Data Processing**: Must use the same data processor used during training for consistent tokenization
+3. **Config Parameters**: Must respect configuration settings for beam size and length penalty
+4. **BLEU Calculation**: Must use sacrebleu for consistent BLEU calculation as in literature
+5. **Checkpoint Format**: Needs to handle PyTorch state dictionaries properly
+
+## Integration with Other Components
+
+1. **Model Integration**: The evaluator needs to interface with the TransformerModel's beam_search method
+2. **Data Processor Integration**: Must use the data processor for consistent tokenization and vocabulary handling
+3. **Utils Integration**: Uses the average_checkpoints utility for model averaging
+
+## Error Handling Considerations
+
+1. Handle cases where model produces no valid translation (e.g., all outputs are invalid or shorter than minimum length)
+2. Handle tensor device mismatches gracefully
+3. Provide informative error messages for missing checkpoints or invalid paths
+4. Handle cases where input sentences might be too long for the model's position encoding limit
+
+## Performance Considerations
+
+1. Batch processing for faster evaluation on test sets
+2. Proper device management (GPU/CPU) for tensor operations
+3. Progress tracking with tqdm for long evaluations
+
+## Specific Requirements from Paper
+
+1. Use beam search with beam size = 4
+2. Apply length penalty with alpha = 0.6
+3. Set maximum output length to input_length + 50
+4. For base models, average last 5 checkpoints
+5. For big models, average last 20 checkpoints
+6. Terminate beam search early when possible (when EOS token is generated)
+
+This implementation aligns with the approach described in the Transformer paper, particularly the evaluation methods mentioned in Section 6.1, paragraph 3.

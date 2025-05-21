@@ -1,0 +1,107 @@
+# Logic Analysis: config.py
+
+## Overview
+The `config.py` module will define a `Config` class responsible for managing all hyperparameters and configuration settings for the Transformer model implementation. This class needs to be designed to load and provide access to the configuration parameters specified in the `config.yaml` file, supporting both 'base' and 'big' model variants as described in the paper.
+
+## Requirements Analysis
+
+The `Config` class must:
+1. Load configuration from the YAML file
+2. Support different model sizes ('base' and 'big')
+3. Provide organized access to different parameter groups (model architecture, training, inference, data)
+4. Include getter methods for common parameter groups
+5. Handle device selection (CPU/GPU)
+
+## Key Parameters from the Paper
+
+### Model Architecture Parameters
+- **Base Model**:
+  - d_model = 512 (embedding dimension)
+  - n_heads = 8 (attention heads)
+  - num_encoder_layers = num_decoder_layers = 6
+  - dim_feedforward = 2048
+  - dropout = 0.1
+  - Weight sharing between embedding and output projection
+
+- **Big Model**:
+  - d_model = 1024
+  - n_heads = 16
+  - num_encoder_layers = num_decoder_layers = 6
+  - dim_feedforward = 4096
+  - dropout = 0.3 (for EN-DE) or 0.1 (for EN-FR)
+  - Weight sharing between embedding and output projection
+
+### Training Parameters
+- Adam optimizer with β1 = 0.9, β2 = 0.98, ε = 10^-9
+- Learning rate schedule with warmup_steps = 4000
+- Label smoothing ϵ = 0.1
+- Batch size ~25000 source and target tokens
+- Training steps: 100,000 for base model, 300,000 for big model
+- Checkpoint averaging: 5 for base, 20 for big (saved at 10-min intervals)
+
+### Inference Parameters
+- Beam size = 4
+- Length penalty α = 0.6
+- Max output length = input length + 50
+
+### Data Parameters
+- EN-DE: BPE vocabulary of ~37,000 tokens
+- EN-FR: Word-piece vocabulary of 32,000 tokens
+
+## Class Design
+
+The `Config` class should:
+1. Initialize with model size ('base' or 'big')
+2. Load the YAML configuration file
+3. Set attributes based on the configuration and model size
+4. Provide methods for accessing grouped parameters
+
+## Implementation Logic
+
+1. **Constructor**:
+   - Accept model_size parameter ('base' or 'big')
+   - Accept optional config_path parameter (default to a standard location)
+   - Load the YAML file
+   - Set attributes based on model size
+   - Initialize device (CPU/GPU)
+
+2. **YAML Loading**:
+   - Use PyYAML to load the configuration
+   - Handle file not found errors gracefully
+   - Validate that the required sections exist in the config
+
+3. **Parameter Grouping Methods**:
+   - `get_model_params()`: Return architecture parameters (d_model, n_heads, etc.)
+   - `get_training_params()`: Return training parameters (optimizer settings, learning rate, etc.)
+   - `get_inference_params()`: Return inference parameters (beam size, length penalty, etc.)
+   - `get_data_params()`: Return data processing parameters (dataset paths, vocabulary sizes, etc.)
+
+4. **Special Handling**:
+   - Language pair selection (EN-DE vs EN-FR) might affect some parameters
+   - Device selection based on CUDA availability
+   - Provide default values for any missing parameters in the config file
+
+## Error Handling and Validation
+
+The class should:
+1. Validate model_size is either 'base' or 'big'
+2. Validate the existence of the config file
+3. Handle missing parameters with sensible defaults where appropriate
+4. Provide clear error messages for required parameters that are missing
+
+## Interface with Other Modules
+
+The `Config` class will be imported by:
+1. `model.py` - To access model architecture parameters
+2. `train.py` - To access training parameters
+3. `evaluate.py` - To access inference parameters
+4. `data_processing.py` - To access data parameters
+5. `main.py` - To initialize the configuration
+
+## Data Flow
+
+1. `main.py` creates a Config instance
+2. The Config instance is passed to DataProcessor, TransformerModel, Trainer, and Evaluator
+3. Each module accesses the relevant parameters via the getter methods
+
+This design ensures a centralized configuration management system that supports the reproduction of both the base and big Transformer models as described in the paper while providing flexibility for experimentation and adaptation to available resources.

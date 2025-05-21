@@ -1,0 +1,415 @@
+Analyzing the requirements for `utils.py` based on the paper, design, and task information.
+
+According to the design, utils.py should contain utility functions for the Transformer implementation, including:
+- Mask creation for self-attention
+- Implementation of label smoothing loss
+- Learning rate scheduling
+- Checkpoint management
+- Model weight averaging
+
+I'll now implement these functions based on the paper's specifications and the provided configuration.
+
+## Code: utils.py
+
+```python
+"""
+Utility functions for the Transformer model implementation.
+
+This module contains helper functions used across the project:
+- Attention masking functions
+- Label smoothing loss
+- Learning rate scheduler
+- Checkpoint management
+- Model weight averaging
+"""
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+import os
+import math
+import copy
+from typing import Dict, List, Optional, Callable, Tuple
+
+
+def create_subsequent_mask(size: int) -> torch.Tensor:
+    """
+    Create a mask for decoder self-attention to prevent attending to future positions.
+    
+    Args:
+        size: Size of the square mask
+        
+    Returns:
+        Mask tensor of shape (1, size, size) with zeros for allowed positions and -inf for masked positions
+    """
+    # Create upper triangular matrix with ones (including diagonal)
+    mask = torch.triu(torch.ones(1, size, size), diagonal=1)
+    # Convert to boolean mask where True means position should be masked
+    return mask == 1
+
+
+def create_padding_mask(seq: torch.Tensor, pad_idx: int) -> torch.Tensor:
+    """
+    Create a mask to hide padding tokens in the input sequence.
+    
+    Args:
+        seq: Sequence tensor of shape (batch_size, seq_len)
+        pad_idx: Index used for padding
+        
+    Returns:
+        Mask tensor of shape (batch_size, 1, 1, seq_len) with zeros for tokens and ones for padding
+    """
+    # Create mask where 1 indicates a padding token
+    mask = (seq == pad_idx).unsqueeze(1).unsqueeze(2)
+    return mask
+
+
+def label_smoothed_nll_loss(
+    pred: torch.Tensor, 
+    target: torch.Tensor, 
+    epsilon: float, 
+    ignore_index: int = -100
+) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+    Calculate cross entropy loss with label smoothing.
+    
+    Args:
+        pred: Predicted logits of shape (batch_size, seq_len, vocab_size)
+        target: Target indices of shape (batch_size, seq_len)
+        epsilon: Label smoothing factor
+        ignore_index: Index to ignore in the loss calculation (e.g., padding)
+        
+    Returns:
+        Tuple of (smoothed loss, regular nll loss for logging purposes)
+    """
+    # Get vocab size from predictions
+    vocab_size = pred.size(-1)
+    
+    # Calculate standard NLL loss for logging
+    nll_loss = F.nll_loss(
+        F.log_softmax(pred, dim=-1).view(-1, vocab_size),
+        target.view(-1),
+        ignore_index=ignore_index,
+        reduction='sum'
+    )
+    
+    # If no label smoothing, return standard loss
+    if epsilon == 0:
+        return nll_loss, nll_loss
+    
+    # Create smoothed target distribution:
+    # - (1-epsilon) for correct class
+    # - epsilon/(vocab_size-1) for all other classes
+    
+    # Create a mask for non-ignored positions
+    non_pad_mask = target != ignore_index
+    num_non_pad_tokens = non_pad_mask.sum().item()
+    
+    # Apply log_softmax to get log probabilities
+    log_probs = F.log_softmax(pred, dim=-1)
+    
+    # Reshape to (N, vocab_size)
+    log_probs = log_probs.view(-1, vocab_size)
+    target_flat = target.view(-1)
+    
+    # Calculate smoothed loss:
+    # - Loss with correct targets weighted by (1-epsilon)
+    # - Loss with uniform distribution weighted by epsilon
+    smooth_loss = -log_probs.sum(dim=-1)  # Sum over vocab (uniform part)
+    smooth_loss = smooth_loss.masked_select(non_pad_mask.view(-1)).sum()  # Sum over non-pad tokens
+    smooth_loss = smooth_loss * (epsilon / vocab_size)
+    
+    # Add the non-smoothed component
+    correct_log_probs = log_probs.gather(dim=-1, index=target_flat.unsqueeze(1)).squeeze(1)
+    correct_log_probs = correct_log_probs.masked_select(non_pad_mask.view(-1))
+    smooth_loss -= correct_log_probs.sum() * (epsilon / vocab_size)  # Subtract from uniform part
+    smooth_loss += (1 - epsilon) * (-correct_log_probs.sum())  # Add weighted correct part
+    
+    # Return both smoothed loss and original NLL loss (for logging)
+    return smooth_loss / num_non_pad_tokens, nll_loss / num_non_pad_tokens
+
+
+def get_lr_scheduler(
+    optimizer: torch.optim.Optimizer, 
+    d_model: int, 
+    warmup_steps: int
+) -> Callable[[int], float]:
+    """
+    Create a learning rate scheduler as described in the paper:
+    lr = d_model^(-0.5) * min(step^(-0.5), step * warmup_steps^(-1.5))
+    
+    Args:
+        optimizer: Optimizer to schedule
+        d_model: Model dimension
+        warmup_steps: Number of warmup steps
+        
+    Returns:
+        Function that updates learning rate based on step number
+    """
+    # Define the learning rate schedule function
+    def lr_lambda(step: int) -> float:
+        """Calculate learning rate multiplier based on step."""
+        # Protect against division by zero
+        step = max(1, step)
+        
+        # Apply formula from paper: lrate = d_model^(-0.5) * min(step^(-0.5), step * warmup_steps^(-1.5))
+        factor = d_model ** (-0.5)
+        arg1 = step ** (-0.5)
+        arg2 = step * (warmup_steps ** (-1.5))
+        
+        return factor * min(arg1, arg2)
+    
+    # Create a function to update optimizer learning rate based on step
+    def update_lr(step: int) -> None:
+        """Update optimizer learning rate based on step number."""
+        lr = lr_lambda(step)
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+        return lr
+    
+    return update_lr
+
+
+def save_checkpoint(
+    model: nn.Module, 
+    optimizer: torch.optim.Optimizer, 
+    epoch: int, 
+    step: int,
+    loss: float,
+    path: str
+) -> None:
+    """
+    Save model checkpoint.
+    
+    Args:
+        model: Model to save
+        optimizer: Optimizer to save
+        epoch: Current epoch number
+        step: Current step number
+        loss: Current loss value
+        path: Path to save checkpoint
+    """
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    
+    # Save checkpoint with model state, optimizer state, and metadata
+    checkpoint = {
+        'model': model.state_dict(),
+        'optimizer': optimizer.state_dict(),
+        'epoch': epoch,
+        'step': step,
+        'loss': loss
+    }
+    
+    torch.save(checkpoint, path)
+    print(f"Checkpoint saved to {path}")
+
+
+def load_checkpoint(
+    path: str, 
+    model: nn.Module, 
+    optimizer: Optional[torch.optim.Optimizer] = None
+) -> Dict:
+    """
+    Load model checkpoint.
+    
+    Args:
+        path: Path to load checkpoint from
+        model: Model to load weights into
+        optimizer: Optimizer to load state into (optional)
+        
+    Returns:
+        Dictionary containing checkpoint metadata (epoch, step, loss)
+    """
+    # Check if checkpoint file exists
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"Checkpoint file not found: {path}")
+    
+    # Load checkpoint
+    checkpoint = torch.load(path, map_location=torch.device('cpu'))
+    
+    # Load model state
+    model.load_state_dict(checkpoint['model'])
+    
+    # Load optimizer state if provided
+    if optimizer is not None and 'optimizer' in checkpoint:
+        optimizer.load_state_dict(checkpoint['optimizer'])
+    
+    # Return metadata
+    return {
+        'epoch': checkpoint.get('epoch', 0),
+        'step': checkpoint.get('step', 0),
+        'loss': checkpoint.get('loss', float('inf'))
+    }
+
+
+def average_checkpoints(paths: List[str], model: nn.Module) -> None:
+    """
+    Average weights from multiple model checkpoints as described in the paper.
+    
+    Args:
+        paths: List of paths to checkpoints
+        model: Model to load averaged weights into
+    """
+    # Ensure there are checkpoints to average
+    if not paths:
+        raise ValueError("No checkpoint paths provided for averaging")
+    
+    # Initialize dictionary to store sum of parameters
+    averaged_params = {}
+    
+    # Load and sum parameters from each checkpoint
+    for i, path in enumerate(paths):
+        # Load checkpoint
+        checkpoint = torch.load(path, map_location=torch.device('cpu'))
+        model_params = checkpoint['model']
+        
+        # Initialize parameter sum or add to it
+        if i == 0:
+            for name, param in model_params.items():
+                averaged_params[name] = param.clone()
+        else:
+            for name, param in model_params.items():
+                averaged_params[name] += param
+    
+    # Average parameters by dividing by number of checkpoints
+    for name, param in averaged_params.items():
+        averaged_params[name] = param / len(paths)
+    
+    # Load averaged parameters into model
+    model.load_state_dict(averaged_params)
+    print(f"Loaded averaged weights from {len(paths)} checkpoints")
+
+
+def greedy_decode(
+    model: nn.Module,
+    src: torch.Tensor,
+    src_mask: torch.Tensor,
+    max_len: int,
+    start_symbol: int,
+    end_symbol: int
+) -> torch.Tensor:
+    """
+    Greedy decoding for inference (used for ablation studies).
+    
+    Args:
+        model: Transformer model
+        src: Source tensor of shape (batch_size, src_len)
+        src_mask: Source mask tensor
+        max_len: Maximum output sequence length
+        start_symbol: Start symbol index
+        end_symbol: End symbol index
+        
+    Returns:
+        Generated output sequence tensor of shape (batch_size, seq_len)
+    """
+    # Get device from source tensor
+    device = src.device
+    
+    # Get batch size
+    batch_size = src.size(0)
+    
+    # Encode the source sequence
+    memory = model.encode(src, src_mask)
+    
+    # Initialize decoder input with start symbol for each batch item
+    ys = torch.ones(batch_size, 1).fill_(start_symbol).long().to(device)
+    
+    # Generate output sequence
+    for i in range(max_len - 1):
+        # Create target mask for current output
+        tgt_mask = create_subsequent_mask(ys.size(1)).to(device)
+        
+        # Decode one step
+        out = model.decode(memory, src_mask, ys, tgt_mask)
+        
+        # Get next token prediction (last position)
+        prob = model.generator(out[:, -1])
+        
+        # Select most likely next token
+        _, next_word = torch.max(prob, dim=1)
+        
+        # Add predicted token to output
+        next_word = next_word.unsqueeze(1)
+        ys = torch.cat([ys, next_word], dim=1)
+        
+        # Stop if all sequences have end symbol
+        if (next_word == end_symbol).all():
+            break
+    
+    return ys
+
+
+def create_masks(
+    src: torch.Tensor,
+    tgt: Optional[torch.Tensor],
+    pad_idx: int
+) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
+    """
+    Create masks for transformer model.
+    
+    Args:
+        src: Source tensor of shape (batch_size, src_len)
+        tgt: Target tensor of shape (batch_size, tgt_len) or None for inference
+        pad_idx: Padding token index
+        
+    Returns:
+        Tuple of (src_mask, tgt_mask) where tgt_mask is None if tgt is None
+    """
+    # Create source padding mask
+    src_mask = create_padding_mask(src, pad_idx)
+    
+    # Create target mask if target is provided
+    tgt_mask = None
+    if tgt is not None:
+        # Create padding mask
+        tgt_padding_mask = create_padding_mask(tgt, pad_idx)
+        
+        # Create subsequent mask
+        tgt_subsequent_mask = create_subsequent_mask(tgt.size(1)).to(tgt.device)
+        
+        # Combine padding and subsequent masks
+        tgt_mask = tgt_padding_mask | tgt_subsequent_mask
+    
+    return src_mask, tgt_mask
+
+
+def clones(module: nn.Module, N: int) -> nn.ModuleList:
+    """
+    Produce N identical layers.
+    Used for creating multiple identical encoder/decoder layers.
+    
+    Args:
+        module: Module to clone
+        N: Number of clones to make
+        
+    Returns:
+        ModuleList containing N clones of the module
+    """
+    return nn.ModuleList([copy.deepcopy(module) for _ in range(N)])
+```
+
+This implementation of `utils.py` provides all the utility functions needed for the Transformer model according to the design specifications. Key features include:
+
+1. **Masking functions**:
+   - `create_subsequent_mask`: Creates causal mask for decoder self-attention
+   - `create_padding_mask`: Creates mask for padding tokens
+   - `create_masks`: Helper function to create both source and target masks
+
+2. **Loss function**:
+   - `label_smoothed_nll_loss`: Implements label smoothing as described in the paper
+
+3. **Learning rate scheduler**:
+   - `get_lr_scheduler`: Implements the custom learning rate schedule from the paper with warmup
+
+4. **Checkpoint management**:
+   - `save_checkpoint`: Saves model and optimizer states
+   - `load_checkpoint`: Loads model and optimizer states
+   - `average_checkpoints`: Averages multiple checkpoints as described in the paper
+
+5. **Decoding helpers**:
+   - `greedy_decode`: Simple greedy decoding function (for testing or ablation studies)
+   - `clones`: Utility to create multiple identical layers (used for encoder/decoder)
+
+All functions are properly typed and documented for clarity and reusability.

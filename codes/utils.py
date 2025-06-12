@@ -234,12 +234,17 @@ def cal_cost(response_json, model_name):
 
         # gpt-image-1
         "gpt-image-1": {"input": 5.00, "cached_input": None, "output": None},
+        "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B": {"input": 0.10, "cached_input": 0.025, "output": 0.40},
     }
 
     
     prompt_tokens = response_json["usage"]["prompt_tokens"]
     completion_tokens = response_json["usage"]["completion_tokens"]
-    cached_tokens = response_json["usage"]["prompt_tokens_details"].get("cached_tokens", 0)
+    prompt_tokens_details = response_json["usage"]["prompt_tokens_details"]
+    if prompt_tokens_details is not None:
+        cached_tokens = prompt_tokens_details.get("cached_tokens", 0)
+    else:
+        cached_tokens = 0
 
     # input token = (prompt_tokens - cached_tokens)
     actual_input_tokens = prompt_tokens - cached_tokens

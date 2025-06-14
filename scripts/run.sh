@@ -1,5 +1,7 @@
 export OPENAI_API_KEY=""
 
+
+BASE_URL="https://api.siliconflow.cn/v1"
 GPT_VERSION="deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
 
 PAPER_NAME="Transformer"

@@ -17,7 +17,9 @@ parser.add_argument('--output_dir',type=str, default="")
 
 args    = parser.parse_args()
 
-client = OpenAI(base_url="https://api.siliconflow.cn/v1",api_key = os.environ["OPENAI_API_KEY"])
+
+client = OpenAI(base_url=os.environ["BASE_URL"],api_key = os.environ["OPENAI_API_KEY"])
+
 
 paper_name = args.paper_name
 gpt_version = args.gpt_version

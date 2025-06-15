@@ -1,0 +1,160 @@
+
+> Name
+
+测试多图表展示
+
+> Author
+
+Zero
+
+> Strategy Description
+
+平台支持策略同时展现多个图表, 这是一个简单的例子
+具体使用方法可参考API文档中的Chart部分 https://www.fmz.com/api#chart
+
+
+
+> Source (javascript)
+
+``` javascript
+/*backtest
+start: 2019-01-22 00:00:00
+end: 2019-01-23 00:00:00
+period: 30m
+exchanges: [{"eid":"OKCoin_EN","currency":"BTC_USD"}]
+*/
+
+function main() {
+    var cfgA = {
+        extension: {
+            layout: 'single', // 不参于分组，单独显示, 默认为分组 'group'
+            height: 300, // 指定高度
+        },
+        title: {
+            text: '盘口图表'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        series: [{
+            name: '买一',
+            data: [],
+        }, {
+            name: '卖一',
+            data: [],
+        }]
+    }
+    var cfgB = {
+        title: {
+            text: '差价图'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        series: [{
+            name: '差价',
+            type: 'column',
+            data: [],
+        }]
+    }
+
+    var cfgC = {
+        __isStock: false,
+        title: {
+            text: '饼图'
+        },
+        series: [{
+            type: 'pie',
+            name: 'one',
+            data: [
+                ["A", 25],
+                ["B", 25],
+                ["C", 25],
+                ["D", 25],
+            ]  // 指定初始数据后不需要用add函数更新, 直接更改图表配置就可以更新序列.
+        }]
+    };
+    var cfgD = {
+        extension: {
+            layout: 'single',
+            col: 8, // 指定宽度占的单元值, 总值 为12
+            height: '300px',
+        },
+        title: {
+            text: '盘口图表'
+        },
+        xAxis: {
+            type: 'datetime'
+        },
+        series: [{
+            name: '买一',
+            data: [],
+        }, {
+            name: '卖一',
+            data: [],
+        }]
+    }
+    var cfgE = {
+        __isStock: false,
+        extension: {
+            layout: 'single',
+            col: 4,
+            height: '300px',
+        },
+        title: {
+            text: '饼图2'
+        },
+        series: [{
+            type: 'pie',
+            name: 'one',
+            data: [
+                ["A", 25],
+                ["B", 25],
+                ["C", 25],
+                ["D", 25],
+            ]
+        }]
+    };
+
+    var chart = Chart([cfgA, cfgB, cfgC, cfgD, cfgE]);
+    chart.reset()
+        // 为饼图清加一个数点，add只能更新通过add方式添加的数据点, 内置的数据点无法后期更新
+    chart.add(3, {
+        name: "ZZ",
+        y: Math.random() * 100
+    });
+    while (true) {
+        Sleep(1000)
+        var ticker = exchange.GetTicker()
+        if (!ticker) {
+            continue;
+        }
+        var diff = ticker.Sell - ticker.Buy
+        cfgA.subtitle = {
+            text: '买一 ' + ticker.Buy + ', 卖一 ' + ticker.Sell,
+        };
+        cfgB.subtitle = {
+            text: '价差 ' + diff,
+        };
+
+        chart.add([0, [new Date().getTime(), ticker.Buy]]);
+        chart.add([1, [new Date().getTime(), ticker.Sell]]);
+        // 相当于更新第二个图表的第一个数据序列
+        chart.add([2, [new Date().getTime(), diff]]);
+        chart.add(4, [new Date().getTime(), ticker.Buy]);
+        chart.add(5, [new Date().getTime(), ticker.Buy]);
+        cfgC.series[0].data[0][1] = Math.random() * 100;
+        cfgE.series[0].data[0][1] = Math.random() * 100;
+        // update实际上等于重置了图表的配置
+        chart.update([cfgA, cfgB, cfgC, cfgD, cfgE]);
+    }
+}
+```
+
+> Detail
+
+https://www.fmz.com/strategy/38203
+
+> Last Modified
+
+2020-04-08 14:53:51

@@ -1,0 +1,257 @@
+2025-06-13 18:23:00,919 - INFO - 开始从myquant.cn提取策略...
+2025-06-13 18:23:00,919 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/153
+2025-06-13 18:23:03,987 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:23:03,987 - INFO - 开始解析网页内容...
+2025-06-13 18:23:04,107 - INFO - 解析出 5 个策略块
+2025-06-13 18:23:04,108 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/双均线策略(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:23:04,108 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/1_双均线策略(期货).md
+2025-06-13 18:23:04,108 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/2_策略2.md
+2025-06-13 18:23:04,108 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/3_策略3.md
+2025-06-13 18:23:04,108 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/4_策略4.md
+2025-06-13 18:23:04,108 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/5_策略5.md
+2025-06-13 18:23:04,109 - INFO - 策略提取完成
+2025-06-13 18:29:20,345 - INFO - 开始从myquant.cn提取策略...
+2025-06-13 18:29:20,346 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/153
+2025-06-13 18:29:24,736 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:29:24,737 - INFO - 开始解析网页内容...
+2025-06-13 18:29:24,878 - INFO - 解析出 5 个策略块
+2025-06-13 18:29:24,879 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/双均线策略(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:29:24,879 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/1_双均线策略(期货).md
+2025-06-13 18:29:24,879 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/2_策略2.md
+2025-06-13 18:29:24,879 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/3_策略3.md
+2025-06-13 18:29:24,880 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/4_策略4.md
+2025-06-13 18:29:24,880 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/5_策略5.md
+2025-06-13 18:29:24,880 - INFO - 策略提取完成
+2025-06-13 18:30:26,903 - INFO - 开始从myquant.cn提取策略...
+2025-06-13 18:30:26,904 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/153
+2025-06-13 18:30:29,927 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:30:29,928 - INFO - 开始解析网页内容...
+2025-06-13 18:30:30,057 - INFO - 解析出 5 个策略块
+2025-06-13 18:30:30,057 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/双均线策略(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:30:30,058 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/1_双均线策略(期货).md
+2025-06-13 18:30:30,058 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/2_策略2.md
+2025-06-13 18:30:30,058 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/3_策略3.md
+2025-06-13 18:30:30,059 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/4_策略4.md
+2025-06-13 18:30:30,059 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/extracted_strategies/5_策略5.md
+2025-06-13 18:30:30,059 - INFO - 策略提取完成
+2025-06-13 18:41:30,999 - INFO - 开始从 17 个URL提取策略...
+2025-06-13 18:41:37,523 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/153
+2025-06-13 18:41:37,863 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:41:37,863 - INFO - 开始解析网页内容...
+2025-06-13 18:41:37,958 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/153 解析出 6 个策略块
+2025-06-13 18:41:41,454 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/153
+2025-06-13 18:41:41,587 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:41:41,759 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_153/双均线策略(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:41:41,759 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_153/1_双均线策略(期货).md
+2025-06-13 18:41:41,759 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_153/2_双均线策略.md
+2025-06-13 18:41:41,759 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_153/3_1. 原理.md
+2025-06-13 18:41:41,760 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_153/4_2. 策略逻辑.md
+2025-06-13 18:41:41,760 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_153/5_3. 策略代码.md
+2025-06-13 18:41:41,760 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_153/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:41:47,551 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/424
+2025-06-13 18:41:47,873 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:41:47,873 - INFO - 开始解析网页内容...
+2025-06-13 18:41:48,012 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/424 解析出 6 个策略块
+2025-06-13 18:41:51,746 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/424
+2025-06-13 18:41:51,850 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:41:52,020 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_424/Dual Thrust(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:41:52,020 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_424/1_Dual Thrust(期货).md
+2025-06-13 18:41:52,021 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_424/2_Dual Thrust.md
+2025-06-13 18:41:52,021 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_424/3_1. 原理.md
+2025-06-13 18:41:52,021 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_424/4_2. 策略逻辑.md
+2025-06-13 18:41:52,021 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_424/5_3. 策略代码.md
+2025-06-13 18:41:52,021 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_424/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:41:55,890 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/425
+2025-06-13 18:41:55,992 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:41:55,993 - INFO - 开始解析网页内容...
+2025-06-13 18:41:56,159 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/425 解析出 6 个策略块
+2025-06-13 18:42:00,475 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/425
+2025-06-13 18:42:00,578 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:00,763 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_425/R-Breaker(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:42:00,764 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_425/1_R-Breaker(期货).md
+2025-06-13 18:42:00,764 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_425/2_R Breaker.md
+2025-06-13 18:42:00,764 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_425/3_1. 原理.md
+2025-06-13 18:42:00,764 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_425/4_2、策略逻辑.md
+2025-06-13 18:42:00,764 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_425/5_3、策略代码.md
+2025-06-13 18:42:00,764 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_425/6_4、回测结果与稳健性分析.md
+2025-06-13 18:42:04,035 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/426
+2025-06-13 18:42:04,145 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:04,145 - INFO - 开始解析网页内容...
+2025-06-13 18:42:04,280 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/426 解析出 6 个策略块
+2025-06-13 18:42:07,940 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/426
+2025-06-13 18:42:08,048 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:08,201 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_426/菲阿里四价(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:42:08,202 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_426/1_菲阿里四价(期货).md
+2025-06-13 18:42:08,202 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_426/2_菲阿里四价.md
+2025-06-13 18:42:08,202 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_426/3_1. 原理.md
+2025-06-13 18:42:08,202 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_426/4_2. 策略逻辑.md
+2025-06-13 18:42:08,202 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_426/5_3. 策略代码.md
+2025-06-13 18:42:08,202 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_426/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:42:15,106 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/427
+2025-06-13 18:42:15,205 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:15,206 - INFO - 开始解析网页内容...
+2025-06-13 18:42:15,328 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/427 解析出 6 个策略块
+2025-06-13 18:42:17,932 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/427
+2025-06-13 18:42:18,559 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:18,701 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_427/小市值(股票) - 经典策略 - 掘金量化.md
+2025-06-13 18:42:18,701 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_427/1_小市值(股票).md
+2025-06-13 18:42:18,701 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_427/2_小市值策略（股票）.md
+2025-06-13 18:42:18,701 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_427/3_1. 原理.md
+2025-06-13 18:42:18,702 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_427/4_2. 策略逻辑.md
+2025-06-13 18:42:18,702 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_427/5_3. 策略代码.md
+2025-06-13 18:42:18,702 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_427/6_4. 回测结果和稳健性分析.md
+2025-06-13 18:42:23,224 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/428
+2025-06-13 18:42:24,353 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:24,354 - INFO - 开始解析网页内容...
+2025-06-13 18:42:24,467 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/428 解析出 6 个策略块
+2025-06-13 18:42:26,580 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/428
+2025-06-13 18:42:26,961 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:27,096 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_428/布林线均值回归(股票) - 经典策略 - 掘金量化.md
+2025-06-13 18:42:27,096 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_428/1_布林线均值回归(股票).md
+2025-06-13 18:42:27,096 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_428/2_布林线均值回归策略.md
+2025-06-13 18:42:27,096 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_428/3_1. 原理.md
+2025-06-13 18:42:27,096 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_428/4_2. 策略思路.md
+2025-06-13 18:42:27,097 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_428/5_3. 策略代码.md
+2025-06-13 18:42:27,097 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_428/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:42:29,648 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/101
+2025-06-13 18:42:29,930 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:29,930 - INFO - 开始解析网页内容...
+2025-06-13 18:42:30,084 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/101 解析出 6 个策略块
+2025-06-13 18:42:35,563 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/101
+2025-06-13 18:42:35,796 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:35,944 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_101/alpha对冲(股票+期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:42:35,944 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_101/1_alpha对冲(股票+期货).md
+2025-06-13 18:42:35,944 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_101/2_Alpha对冲策略.md
+2025-06-13 18:42:35,944 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_101/3_1. 策略原理.md
+2025-06-13 18:42:35,944 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_101/4_2. 策略实现.md
+2025-06-13 18:42:35,945 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_101/5_3. 策略代码.md
+2025-06-13 18:42:35,945 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_101/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:42:42,876 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/103
+2025-06-13 18:42:43,162 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:43,162 - INFO - 开始解析网页内容...
+2025-06-13 18:42:43,329 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/103 解析出 6 个策略块
+2025-06-13 18:42:48,056 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/103
+2025-06-13 18:42:48,291 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:48,521 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_103/多因子选股(股票) - 经典策略 - 掘金量化.md
+2025-06-13 18:42:48,521 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_103/1_多因子选股(股票).md
+2025-06-13 18:42:48,522 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_103/2_多因子策略.md
+2025-06-13 18:42:48,522 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_103/3_1. 原理.md
+2025-06-13 18:42:48,522 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_103/4_2. 策略步骤.md
+2025-06-13 18:42:48,522 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_103/5_3. 策略代码.md
+2025-06-13 18:42:48,522 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_103/6_4. 回测结果与稳健性检验.md
+2025-06-13 18:42:53,351 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/104
+2025-06-13 18:42:53,540 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:53,541 - INFO - 开始解析网页内容...
+2025-06-13 18:42:53,746 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/104 解析出 6 个策略块
+2025-06-13 18:42:59,387 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/104
+2025-06-13 18:42:59,574 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:42:59,761 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_104/网格交易(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:42:59,762 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_104/1_网格交易(期货).md
+2025-06-13 18:42:59,763 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_104/2_网格交易法（期货）.md
+2025-06-13 18:42:59,763 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_104/3_1. 原理.md
+2025-06-13 18:42:59,763 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_104/4_2. 策略思路.md
+2025-06-13 18:42:59,763 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_104/5_3. 策略代码.md
+2025-06-13 18:42:59,763 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_104/6_4. 回测结果和稳健性分析.md
+2025-06-13 18:43:05,328 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/105
+2025-06-13 18:43:05,475 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:05,476 - INFO - 开始解析网页内容...
+2025-06-13 18:43:05,597 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/105 解析出 6 个策略块
+2025-06-13 18:43:10,714 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/105
+2025-06-13 18:43:10,853 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:11,005 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_105/指数增强(股票) - 经典策略 - 掘金量化.md
+2025-06-13 18:43:11,005 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_105/1_指数增强(股票).md
+2025-06-13 18:43:11,006 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_105/2_指数增强策略.md
+2025-06-13 18:43:11,006 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_105/3_1. 策略原理.md
+2025-06-13 18:43:11,006 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_105/4_2. 策略步骤.md
+2025-06-13 18:43:11,006 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_105/5_3. 策略代码.md
+2025-06-13 18:43:11,006 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_105/6_4. 回测结果和稳健性分析.md
+2025-06-13 18:43:14,077 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/106
+2025-06-13 18:43:14,439 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:14,440 - INFO - 开始解析网页内容...
+2025-06-13 18:43:14,580 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/106 解析出 6 个策略块
+2025-06-13 18:43:18,492 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/106
+2025-06-13 18:43:18,632 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:18,842 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_106/跨品种套利(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:43:18,843 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_106/1_跨品种套利(期货).md
+2025-06-13 18:43:18,843 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_106/2_跨品种套利.md
+2025-06-13 18:43:18,843 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_106/3_1. 原理.md
+2025-06-13 18:43:18,843 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_106/4_2. 策略思路.md
+2025-06-13 18:43:18,844 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_106/5_3. 策略代码.md
+2025-06-13 18:43:18,844 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_106/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:43:25,215 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/107
+2025-06-13 18:43:25,348 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:25,348 - INFO - 开始解析网页内容...
+2025-06-13 18:43:25,465 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/107 解析出 4 个策略块
+2025-06-13 18:43:28,432 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/107
+2025-06-13 18:43:28,564 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:28,708 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_107/跨期套利(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:43:28,709 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_107/1_跨期套利(期货).md
+2025-06-13 18:43:28,709 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_107/2_跨期套利策略.md
+2025-06-13 18:43:28,709 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_107/3_1. 原理.md
+2025-06-13 18:43:28,709 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_107/4_2. 策略步骤.md
+2025-06-13 18:43:33,327 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/108
+2025-06-13 18:43:33,461 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:33,463 - INFO - 开始解析网页内容...
+2025-06-13 18:43:33,599 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/108 解析出 6 个策略块
+2025-06-13 18:43:37,458 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/108
+2025-06-13 18:43:37,592 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:37,755 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_108/日内回转交易(股票) - 经典策略 - 掘金量化.md
+2025-06-13 18:43:37,756 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_108/1_日内回转交易(股票).md
+2025-06-13 18:43:37,756 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_108/2_日内回转策略(股票).md
+2025-06-13 18:43:37,756 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_108/3_1. 原理.md
+2025-06-13 18:43:37,756 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_108/4_2. 策略思路.md
+2025-06-13 18:43:37,756 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_108/5_3. 策略代码.md
+2025-06-13 18:43:37,756 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_108/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:43:44,161 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/109
+2025-06-13 18:43:44,254 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:44,254 - INFO - 开始解析网页内容...
+2025-06-13 18:43:44,355 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/109 解析出 6 个策略块
+2025-06-13 18:43:50,315 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/109
+2025-06-13 18:43:50,405 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:50,569 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_109/做市商交易(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:43:50,569 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_109/1_做市商交易(期货).md
+2025-06-13 18:43:50,569 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_109/2_做市商策略.md
+2025-06-13 18:43:50,570 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_109/3_1. 原理.md
+2025-06-13 18:43:50,570 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_109/4_2. 策略思路.md
+2025-06-13 18:43:50,570 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_109/5_3. 策略代码.md
+2025-06-13 18:43:50,570 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_109/6_4. 回测结果.md
+2025-06-13 18:43:56,306 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/110
+2025-06-13 18:43:56,445 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:43:56,446 - INFO - 开始解析网页内容...
+2025-06-13 18:43:56,635 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/110 解析出 6 个策略块
+2025-06-13 18:44:03,171 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/110
+2025-06-13 18:44:03,311 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:44:03,546 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_110/海龟交易法(期货) - 经典策略 - 掘金量化.md
+2025-06-13 18:44:03,547 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_110/1_海龟交易法(期货).md
+2025-06-13 18:44:03,547 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_110/2_海龟交易法.md
+2025-06-13 18:44:03,547 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_110/3_1. 原理.md
+2025-06-13 18:44:03,547 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_110/4_2. 策略思路.md
+2025-06-13 18:44:03,547 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_110/5_3. 策略代码.md
+2025-06-13 18:44:03,547 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_110/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:44:09,321 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/111
+2025-06-13 18:44:09,423 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:44:09,424 - INFO - 开始解析网页内容...
+2025-06-13 18:44:09,549 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/111 解析出 6 个策略块
+2025-06-13 18:44:15,870 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/111
+2025-06-13 18:44:15,964 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:44:16,165 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_111/行业轮动(股票) - 经典策略 - 掘金量化.md
+2025-06-13 18:44:16,165 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_111/1_行业轮动(股票).md
+2025-06-13 18:44:16,165 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_111/2_行业轮动策略.md
+2025-06-13 18:44:16,165 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_111/3_1. 原理.md
+2025-06-13 18:44:16,166 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_111/4_2. 策略思路.md
+2025-06-13 18:44:16,166 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_111/5_3. 策略代码.md
+2025-06-13 18:44:16,166 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_111/6_4. 回测结果分析与稳健性检验.md
+2025-06-13 18:44:19,069 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/112
+2025-06-13 18:44:19,205 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:44:19,205 - INFO - 开始解析网页内容...
+2025-06-13 18:44:19,372 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/112 解析出 6 个策略块
+2025-06-13 18:44:24,407 - INFO - 正在获取网页: https://www.myquant.cn/docs/python_strategyies/112
+2025-06-13 18:44:24,541 - INFO - 成功获取网页，状态码: 200
+2025-06-13 18:44:24,734 - INFO - 完整内容已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_112/机器学习(股票) - 经典策略 - 掘金量化.md
+2025-06-13 18:44:24,734 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_112/1_机器学习(股票).md
+2025-06-13 18:44:24,734 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_112/2_机器学习.md
+2025-06-13 18:44:24,734 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_112/3_1. 原理.md
+2025-06-13 18:44:24,735 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_112/4_2. 策略思路.md
+2025-06-13 18:44:24,735 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_112/5_3. 策略代码.md
+2025-06-13 18:44:24,735 - INFO - 策略已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/fmz_strategies/myquant_strategies/url__docs_python_strategyies_112/6_4. 回测结果与稳健性分析.md
+2025-06-13 18:44:24,735 - INFO - 所有URL策略提取完成

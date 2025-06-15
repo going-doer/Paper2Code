@@ -232,3 +232,16 @@ python eval.py \
 🪙 Accumulated total cost so far: $0.16451380
 ============================================
 ```
+
+dataset
+- 整理成json：{"strategy":"","code":""}
+  - 数据
+  - loss.py
+  - 
+- 强化学习：
+- loss：大模型来评估模型的输出和真是代码之间的差距 
+  - loss.py loss function(model_out_code, gt):
+      score = api.call(prompt)
+      return score
+
+https://www.myquant.cn/docs/python_strategyies/153

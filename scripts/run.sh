@@ -1,6 +1,8 @@
-# export OPENAI_API_KEY=""
+export OPENAI_API_KEY=""
 
-GPT_VERSION="o3-mini"
+
+BASE_URL="https://api.siliconflow.cn/v1"
+GPT_VERSION="deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
 
 PAPER_NAME="Transformer"
 PDF_PATH="../examples/Transformer.pdf" # .pdf
@@ -29,6 +31,7 @@ python ../codes/1_planning.py \
     --pdf_json_path ${PDF_JSON_CLEANED_PATH} \
     --output_dir ${OUTPUT_DIR}
 
+echo "------- Extract Config -------"
 
 python ../codes/1.1_extract_config.py \
     --paper_name $PAPER_NAME \

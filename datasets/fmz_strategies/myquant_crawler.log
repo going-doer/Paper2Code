@@ -1,0 +1,107 @@
+2025-06-13 19:17:08,134 - INFO - 开始处理 17 个URL...
+2025-06-13 19:17:08,134 - INFO - 等待 3.90 秒后请求 https://www.myquant.cn/docs/python_strategyies/153
+2025-06-13 19:17:12,346 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/153，状态码: 200
+2025-06-13 19:17:12,400 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:12,455 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:12,455 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:12,456 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/153 提取 1 个策略
+2025-06-13 19:17:12,456 - INFO - 等待 3.92 秒后请求 https://www.myquant.cn/docs/python_strategyies/424
+2025-06-13 19:17:16,508 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/424，状态码: 200
+2025-06-13 19:17:16,604 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:16,660 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:16,660 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:16,660 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/424 提取 1 个策略
+2025-06-13 19:17:16,660 - INFO - 等待 6.38 秒后请求 https://www.myquant.cn/docs/python_strategyies/425
+2025-06-13 19:17:23,178 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/425，状态码: 200
+2025-06-13 19:17:23,281 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:23,360 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:23,360 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:23,361 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/425 提取 1 个策略
+2025-06-13 19:17:23,361 - INFO - 等待 3.64 秒后请求 https://www.myquant.cn/docs/python_strategyies/426
+2025-06-13 19:17:27,136 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/426，状态码: 200
+2025-06-13 19:17:27,227 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:27,277 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:27,277 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:27,277 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/426 提取 1 个策略
+2025-06-13 19:17:27,277 - INFO - 等待 5.06 秒后请求 https://www.myquant.cn/docs/python_strategyies/427
+2025-06-13 19:17:32,463 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/427，状态码: 200
+2025-06-13 19:17:32,554 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:32,598 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:32,599 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:32,599 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/427 提取 1 个策略
+2025-06-13 19:17:32,599 - INFO - 等待 5.67 秒后请求 https://www.myquant.cn/docs/python_strategyies/428
+2025-06-13 19:17:38,367 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/428，状态码: 200
+2025-06-13 19:17:38,447 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:38,485 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:38,485 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:38,485 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/428 提取 1 个策略
+2025-06-13 19:17:38,485 - INFO - 等待 4.32 秒后请求 https://www.myquant.cn/docs/python_strategyies/101
+2025-06-13 19:17:42,933 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/101，状态码: 200
+2025-06-13 19:17:43,023 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:43,068 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:43,068 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:43,069 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/101 提取 1 个策略
+2025-06-13 19:17:43,069 - INFO - 等待 5.93 秒后请求 https://www.myquant.cn/docs/python_strategyies/103
+2025-06-13 19:17:49,131 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/103，状态码: 200
+2025-06-13 19:17:49,248 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:49,373 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:49,374 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:49,374 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/103 提取 1 个策略
+2025-06-13 19:17:49,374 - INFO - 等待 7.81 秒后请求 https://www.myquant.cn/docs/python_strategyies/104
+2025-06-13 19:17:57,313 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/104，状态码: 200
+2025-06-13 19:17:57,414 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:17:57,471 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:17:57,471 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:17:57,472 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/104 提取 1 个策略
+2025-06-13 19:17:57,472 - INFO - 等待 4.72 秒后请求 https://www.myquant.cn/docs/python_strategyies/105
+2025-06-13 19:18:02,285 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/105，状态码: 200
+2025-06-13 19:18:02,327 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:02,365 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:02,365 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:02,365 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/105 提取 1 个策略
+2025-06-13 19:18:02,365 - INFO - 等待 6.22 秒后请求 https://www.myquant.cn/docs/python_strategyies/106
+2025-06-13 19:18:08,681 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/106，状态码: 200
+2025-06-13 19:18:08,780 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:08,839 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:08,839 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:08,840 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/106 提取 1 个策略
+2025-06-13 19:18:08,840 - INFO - 等待 5.22 秒后请求 https://www.myquant.cn/docs/python_strategyies/107
+2025-06-13 19:18:14,153 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/107，状态码: 200
+2025-06-13 19:18:14,242 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:14,284 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:14,284 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:14,284 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/107 提取 1 个策略
+2025-06-13 19:18:14,284 - INFO - 等待 7.47 秒后请求 https://www.myquant.cn/docs/python_strategyies/108
+2025-06-13 19:18:21,851 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/108，状态码: 200
+2025-06-13 19:18:21,947 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:22,003 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:22,003 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:22,004 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/108 提取 1 个策略
+2025-06-13 19:18:22,004 - INFO - 等待 6.95 秒后请求 https://www.myquant.cn/docs/python_strategyies/109
+2025-06-13 19:18:29,051 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/109，状态码: 200
+2025-06-13 19:18:29,162 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:29,192 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:29,192 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:29,192 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/109 提取 1 个策略
+2025-06-13 19:18:29,192 - INFO - 等待 4.87 秒后请求 https://www.myquant.cn/docs/python_strategyies/110
+2025-06-13 19:18:34,190 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/110，状态码: 200
+2025-06-13 19:18:34,305 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:34,393 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:34,393 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:34,393 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/110 提取 1 个策略
+2025-06-13 19:18:34,393 - INFO - 等待 4.93 秒后请求 https://www.myquant.cn/docs/python_strategyies/111
+2025-06-13 19:18:39,422 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/111，状态码: 200
+2025-06-13 19:18:39,493 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:39,538 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:39,538 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:39,538 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/111 提取 1 个策略
+2025-06-13 19:18:39,538 - INFO - 等待 3.91 秒后请求 https://www.myquant.cn/docs/python_strategyies/112
+2025-06-13 19:18:43,579 - INFO - 成功获取 https://www.myquant.cn/docs/python_strategyies/112，状态码: 200
+2025-06-13 19:18:43,689 - INFO - 使用选择器 'article' 定位内容区域
+2025-06-13 19:18:43,770 - INFO - 找到 0 个Python格式代码块
+2025-06-13 19:18:43,770 - INFO - 找到 1 个通用格式代码块
+2025-06-13 19:18:43,770 - INFO - 从 https://www.myquant.cn/docs/python_strategyies/112 提取 1 个策略
+2025-06-13 19:18:43,774 - INFO - JSONL数据集已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/myquant_dataset/myquant_strategies.jsonl，共 17 个策略
+2025-06-13 19:18:43,776 - INFO - JSON数据集已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/myquant_dataset/myquant_strategies.json
+2025-06-13 19:18:43,776 - INFO - CSV数据集已保存至: /root/autodl-tmp/FinancialStrategy2Code/datasets/myquant_dataset/myquant_strategies.csv
+2025-06-13 19:18:43,780 - INFO - 所有URL处理完成

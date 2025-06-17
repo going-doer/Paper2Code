@@ -1,5 +1,0 @@
-chardet>=4.0.0
-python-magic>=0.4.27
-tqdm>=4.65.0
-pandas>=1.5.0
-numpy>=1.23.0

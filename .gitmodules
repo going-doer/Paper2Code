@@ -1,0 +1,3 @@
+[submodule "datasets/fmz_strategies"]
+	path = datasets/fmz_strategies
+	url = git@github.com:fmzquant/strategies.git

@@ -1,0 +1,86 @@
+You will be given a research paper along with its corresponding code repository.
+
+Your task is to rate the code repository on one metric and provide a critique highlighting key differences.
+
+Please make sure you read and understand these instructions carefully. Keep this document open while reviewing, and refer to it as needed.
+
+---
+
+Evaluation Criteria:
+
+Correctness (1-5): The quality of the repository in accurately implementing the paper’s concepts, methodology, and algorithms without logical errors. Additionally, provide a critique focusing on the completeness, accuracy, and implementation choices made in the repository relative to the methodology and algorithms described in the paper.
+
+1: Very Poor. The repository does not correctly implement the core concepts, methodology, or algorithms from the paper. Major logical errors or missing components are present.
+2: Poor. The repository attempts to implement the paper’s concepts but contains significant mistakes or missing components, making the implementation incorrect.
+3: Fair. Some core components and concepts are correctly implemented, but there are notable logical errors or inaccuracies in the methodology.
+4: Good. The repository correctly implements the key components and methodology, with only minor inaccuracies that do not significantly affect correctness.
+5: Excellent. The repository fully and accurately implements all key components, methodology, and algorithms from the paper without logical errors.
+
+---
+
+Evaluation Steps  
+
+1. Identify Key Aspects of the Paper: Carefully read the paper to understand its core concepts, methodology, and algorithms. Pay close attention to key aspects crucial for implementing the paper’s results (e.g., specific algorithms, data preprocessing steps, evaluation protocols).
+
+2. Examine the Code Repository: Analyze the repository to determine how well it implements the key aspects of the paper. Focus on whether the repository’s core logic, algorithms, and structure align with the methodology and experiments described in the paper.
+
+3. Identify Logical Errors and Deviations: Check for logical errors, missing steps, or deviations from the paper’s methodology. Note any incorrect representations, inconsistencies, or incomplete implementations that could affect the correctness of the repository.
+
+4. Provide a Critique: Consider the completeness and accuracy of the implementation relative to the paper’s goals. You do not need to analyze minor details like logging functions, script organization, or documentation quality. Instead, concentrate on the correctness of the logic and implementation to ensure the core concepts from the paper are fully reflected in the repository. For each identified issue, write a detailed critique specifying the affected files and functions in the repository. Highlight missing or incorrectly implemented steps that impact the correctness and alignment with the paper’s methodology.
+
+5. Assess Completeness and Accuracy: Evaluate the repository for its completeness and accuracy relative to the paper’s methodology. Ensure that all critical components—such as data preprocessing, core algorithms, and evaluation steps—are implemented and consistent with the paper’s descriptions.
+
+6. Assign a Score: Based on your evaluation, provide a critique and assign a correctness score from 1 to 5 for the repository, reflecting how well it implements the key aspects of the paper. Include a detailed critique in the specified JSON format.
+
+
+---
+
+Severity Level:  
+
+Each identified critique will be assigned a severity level based on its impact on the correctness of the methodology implementation.  
+
+- High: Missing or incorrect implementation of the paper’s core concepts, major loss functions, or experiment components that are fundamental to reproducing the paper’s methodology.  
+  - Example: The main algorithm is missing or fundamentally incorrect.  
+- Medium: Issues affecting training logic, data preprocessing, or other core functionalities that significantly impact performance but do not completely break the system.  
+  - Example: Improper training loop structure, incorrect data augmentation, or missing essential components in data processing.  
+- Low: Errors in specific features that cause deviations from expected results but can be worked around with modifications. Any errors in the evaluation process belong to this category unless they impact the core concepts. These include minor issues like logging, error handling mechanisms, configuration settings, evaluation steps that do not alter the fundamental implementation and additional implementations not explicitly stated in the paper.
+  - Example: Suboptimal hyperparameter initialization, incorrect learning rate schedule, inaccuracies in evaluation metrics, using a different random seed, variations in batch processing, different weight initialization, issues in result logging or reporting, variations in evaluation dataset splits, improper error handling in non-critical steps, mismatches in secondary evaluation criteria, or additional implementation details not specified in the paper that do not interfere with core results.
+
+---
+
+Example JSON format:  
+```json
+{
+    "critique_list": [
+        {
+            "file_name": "dataset.py",
+            "func_name": "train_preprocess",
+            "severity_level": "medium",
+            "critique": "A critique of the target repository's file."
+        },
+        {
+            "file_name": "metrics.py",
+            "func_name": "f1_at_k",
+            "severity_level": "low",
+            "critique": "A critique of the target repository's file."
+        }
+    ],
+    "score": 2
+}
+```
+
+---
+
+Sample:
+
+Research Paper:
+
+{{Paper}}
+
+Code Repository:
+
+{{Code}}
+
+---
+
+Please provide a critique list for the code repository and a single numerical rating (1, 2, 3, 4, or 5) based on the quality of the sample, following the Example JSON format, without any additional commentary, formatting, or chattiness.

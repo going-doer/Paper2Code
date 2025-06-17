@@ -1,0 +1,96 @@
+You will be given a research paper along with two corresponding code repositories: a gold repository and a target repository.
+
+Your task is to compare the target repository against the gold repository, rate the target repository on one metric, and provide a critique highlighting key differences.
+
+Please make sure you read and understand these instructions carefully. Keep this document open while reviewing, and refer to it as needed.
+
+---
+
+Evaluation Criteria:
+
+Correctness (1-5): The quality of the target repository in accurately implementing the paper’s concepts, methodology, and algorithms without logical errors, as compared to the gold repository. Additionally, provide a critique focusing on the completeness, accuracy, and implementation choices made in the target repository relative to the gold repository.
+
+1: Very Poor. The target repository does not correctly implement the core concepts, methodology, or algorithms from the paper. Major logical errors or missing components are present, especially when compared to the gold repository.
+2: Poor. The target repository attempts to implement the paper’s concepts but contains significant mistakes or missing components, making the implementation incorrect when compared to the gold repository.
+3: Fair. Some core components and concepts are correctly implemented in the target repository, but there are notable logical errors or inaccuracies compared to the gold repository.
+4: Good. The target repository correctly implements the key components and methodology, with only minor inaccuracies or deviations from the gold repository.
+5: Excellent. The target repository fully and accurately implements all relevant key components, methodology, and algorithms from the paper, matching the quality of the gold repository.
+
+---
+
+Evaluation Steps  
+
+1. Identify Key Aspects of the Paper: Carefully read the research paper to understand its core concepts, methodology, and algorithms. Pay close attention to the key aspects that are crucial for implementing the paper’s results (e.g., specific algorithms, data preprocessing steps, evaluation protocols).
+
+2. Analyze the Gold Repository: Examine the gold repository to understand how these key aspects have been implemented. Use the gold repository as a reference for how the paper’s methodology should be translated into code. Note the completeness, accuracy, and design choices in the gold repository that faithfully represent the paper’s concepts.
+
+3. Examine the Target Repository: Analyze the target repository to assess how well it implements the key aspects of the paper. Reference the gold repository as a guide for understanding these key aspects in the target repository. Focus on whether the target repository’s core logic, algorithms, and structure align with the methodology and experiments described in the paper.
+
+4. Identify Logical Errors and Deviations: Check for logical errors, missing steps, or deviations from the paper’s methodology. Note any incorrect representations, inconsistencies, or incomplete implementations that could affect the correctness of the target repository.
+
+5. Provide a Critique: Consider both the completeness and accuracy of the implementation relative to the paper’s goals and the gold repository’s standard. You do not need to analyze minor details like logging functions, script organization, or documentation quality. Instead, concentrate on the correctness of the logic and implementation that ensures the core concepts from the paper are fully reflected in the target repository. For each mismatch or deviation in implementation, note down specific critiques comparing relevant functions in the target repository to the corresponding functions in the gold repository. Highlight incorrect logic, missing steps, or deviations that affect the correct implementation of the paper’s methodology.
+
+5. Assess the Correctness: Determine whether the target repository includes all the critical elements described in the paper and implemented in the gold repository. Identify missing components, significant deviations, or incorrect implementations that could affect the correctness of the target repository.
+
+6. Assign a Score: Based on your evaluation, provide a critique and assign a correctness score from 1 to 5 for the target repository, reflecting how well it implements the key aspects of the paper refer to the gold repository. Include a detailed critique in the specified JSON format.
+
+
+---
+
+Severity Level:  
+
+Each identified critique will be assigned a severity level based on its impact on the correctness of the methodology implementation.  
+
+- High: Missing or incorrect implementation of the paper’s core concepts, major loss functions, or experiment components that are fundamental to reproducing the paper’s methodology.  
+  - Example: The main algorithm is missing or fundamentally incorrect.  
+- Medium: Issues affecting training logic, data preprocessing, or other core functionalities that significantly impact performance but do not completely break the system.  
+  - Example: Improper training loop structure, incorrect data augmentation, or missing essential components in data processing.  
+- Low: Errors in specific features that cause deviations from expected results but can be worked around with modifications. Any errors in the evaluation process belong to this category unless they impact the core concepts. These include minor issues like logging, error handling mechanisms, configuration settings, evaluation steps that do not alter the fundamental implementation and additional implementations not explicitly stated in the paper.
+  - Example: Suboptimal hyperparameter initialization, incorrect learning rate schedule, inaccuracies in evaluation metrics, using a different random seed, variations in batch processing, different weight initialization, issues in result logging or reporting, variations in evaluation dataset splits, improper error handling in non-critical steps, mismatches in secondary evaluation criteria, or additional implementation details not specified in the paper that do not interfere with core results.
+
+---
+
+Example JSON format:
+```json
+{
+    "critique_list": [
+        {
+            "gold_file_name": "preprocessing.py",
+            "gold_func_name": "data_process",
+            "target_file_name": "dataset.py",
+            "target_func_name": "train_preprocess",
+            "severity_level": "medium",
+            "critique": "A critique of the target repository's file with reference to the gold repository."
+        }, 
+        {
+            "gold_file_name": "utils.py",
+            "gold_func_name": "calculate_metric",
+            "target_file_name": "metric.py",
+            "target_func_name": "f1_at_k"
+            "severity_level": "low",
+            "critique": "A critique of the target repository's file with reference to the gold repository."
+        },
+    ],
+    "score": 2
+}
+```
+
+---
+
+Sample:
+
+Research Paper:
+
+{{Paper}}
+
+Gold Repository:
+
+{{GoldCode}}
+
+Target Repository:
+
+{{Code}}
+
+---
+
+Please provide critique of the target repository and a single numerical rating (1, 2, 3, 4, or 5) based on the quality of the sample, following the Example JSON format, without any additional commentary, formatting, or chattiness.

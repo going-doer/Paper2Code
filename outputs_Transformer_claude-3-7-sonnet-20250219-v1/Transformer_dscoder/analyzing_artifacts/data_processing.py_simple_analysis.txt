@@ -1,0 +1,126 @@
+# Logic Analysis for data_processing.py
+
+## Overview
+
+The `data_processing.py` file is responsible for handling all data-related operations for the Transformer model implementation. This includes downloading datasets, tokenization, vocabulary building, batch creation, and mask generation. The implementation must align with the paper "Attention Is All You Need" which specifies using byte-pair encoding (BPE) for English-German translation and word-piece encoding for English-French translation.
+
+## Key Requirements
+
+1. Process the WMT14 dataset for English-German (~4.5M sentence pairs) and English-French (~36M sentence pairs)
+2. Implement tokenization with BPE (37K vocab) for EN-DE and word-piece (32K vocab) for EN-FR
+3. Create batches containing approximately 25,000 tokens (target batch size)
+4. Handle masking for padding and autoregressive behavior
+5. Provide an interface compatible with PyTorch's DataLoader
+
+## Data Processor Class Design
+
+### `DataProcessor` Class
+
+#### `__init__(config: Config)`
+- Initialize using configuration from `config.yaml` via the `Config` class
+- Store parameters like vocabulary sizes, maximum sequence length, tokenization method (BPE vs word-piece)
+- Initialize tokenizers (sentencepiece for BPE/word-piece)
+- Set up device for tensor operations
+- Store special token indices (PAD, BOS, EOS, UNK)
+
+#### `load_data(dataset_path: str) -> Tuple[DataLoader]`
+- Check if dataset exists locally, if not, download and extract
+- Handle paths for WMT14 EN-DE or EN-FR datasets based on config
+- Load train/val/test splits according to paper (newstest2013 for validation, newstest2014 for testing)
+- Process raw text files into source-target sentence pairs
+- Apply tokenization to all datasets
+- Build vocabularies from training data if not already created
+- Create data loaders with batching
+- Return tuple of (train_loader, val_loader, test_loader)
+
+#### `build_vocab(train_data: List) -> Tuple[Vocab]`
+- Process training data to build vocabularies for source and target languages
+- Use sentencepiece to train BPE model for EN-DE (37K tokens) or word-piece model for EN-FR (32K tokens)
+- Include special tokens: PAD (padding), BOS (beginning of sequence), EOS (end of sequence), UNK (unknown)
+- Save vocabulary to disk for reuse
+- Return tuple of (source_vocab, target_vocab)
+
+#### `tokenize(text: str) -> List[str]`
+- Basic tokenization of text (e.g., splitting by whitespace, handling punctuation)
+- This is a pre-processing step before applying BPE/word-piece
+- Return list of tokens
+
+#### `apply_bpe(tokens: List[str]) -> List[str]` / `apply_wordpiece(tokens: List[str]) -> List[str]`
+- Apply byte-pair encoding or word-piece encoding to tokenized text
+- Use sentencepiece library for consistent implementation
+- Convert tokens to subword units according to trained BPE/word-piece model
+- Return list of subword tokens
+
+#### `batch_data(data: List) -> Iterator`
+- Group sentences of similar lengths to minimize padding waste
+- Create batches with target size of ~25,000 tokens as mentioned in the paper
+- Convert tokenized text to tensor indices using vocabulary
+- Add BOS/EOS tokens appropriately
+- Pad sequences to equal length within each batch
+- Return iterator over batched data
+
+#### `create_masks(src: Tensor, tgt: Tensor) -> Tuple[Tensor]`
+- Create padding mask for source sequence (to mask padding tokens in encoder self-attention)
+- Create combined padding + subsequent mask for target sequence:
+  - Padding mask: to mask padding tokens in decoder self-attention
+  - Subsequent mask: to prevent attending to future positions in decoder self-attention
+- These masks are essential for the Transformer's attention mechanisms
+- Return tuple of (src_mask, tgt_mask)
+
+## Technical Considerations
+
+1. **Data Loading Efficiency**:
+   - Processing WMT14 datasets (especially EN-FR with 36M pairs) requires efficient streaming
+   - Need to handle large files without loading entire dataset into memory
+
+2. **Tokenization Pipeline**:
+   - The paper uses BPE for EN-DE and word-piece for EN-FR
+   - Both can be implemented using sentencepiece library
+   - Need to save/load tokenizer models for consistent application across train/val/test sets
+
+3. **Batch Creation Logic**:
+   - The paper mentions batches containing ~25,000 source and ~25,000 target tokens
+   - This requires dynamic batch sizing based on sequence lengths
+   - Sentences should be grouped by approximate length to minimize padding
+
+4. **Mask Creation**:
+   - Source mask: binary mask where 1s indicate non-padding positions
+   - Target mask: combination of padding mask and subsequent (causal/triangular) mask
+   - These masks should be properly shaped for the attention mechanism
+
+5. **Vocabulary Management**:
+   - Shared source-target vocabulary for both language pairs (37K for EN-DE, 32K for EN-FR)
+   - Need to handle special tokens (PAD, BOS, EOS, UNK) consistently
+
+6. **Data Caching**:
+   - For efficiency, preprocessed datasets should be cached to disk
+   - Vocabulary and tokenizer models should be saved for reuse
+
+7. **Integration with Training Loop**:
+   - Ensure data processing output is compatible with model input requirements
+   - Provide proper formatting for source/target sequences and attention masks
+
+## Integration with Other Modules
+
+- The `Config` class will provide configuration parameters like vocabulary sizes, maximum sequence length, etc.
+- The `utils.py` module will provide masking functions that are used in `create_masks()`
+- The produced data loaders will be consumed by the `Trainer` and `Evaluator` classes
+- The vocabulary objects will be used by the `TransformerModel` class for embedding layers
+
+## Dependencies
+
+- `torch`: For tensor operations and DataLoader creation
+- `torchtext`: For vocabulary and dataset utilities
+- `sentencepiece`: For BPE and word-piece tokenization
+- Custom `utils.py`: For mask creation functions
+- Custom `config.py`: For configuration parameters
+
+## Alignment with Paper
+
+The implementation must adhere to the following specifications from the paper:
+- Use of BPE with 37K shared vocabulary for EN-DE translation
+- Use of word-piece with 32K vocabulary for EN-FR translation
+- Batch size of ~25,000 source and ~25,000 target tokens
+- Proper mask creation for the Transformer's attention mechanism
+
+This data processing module is critical for accurate reproduction as improper data preprocessing can significantly impact the model's performance and ability to reach the BLEU scores reported in the paper.

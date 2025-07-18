@@ -1,0 +1,777 @@
+"""
+Model module for the Transformer architecture implementation.
+Implements the Transformer model as described in 'Attention Is All You Need' paper.
+
+This module contains the full Transformer architecture with encoder and decoder stacks,
+multi-head attention mechanisms, position-wise feed-forward networks, and positional encoding.
+"""
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import math
+import copy
+import numpy as np
+from typing import Optional, Tuple, List
+
+# Import from project modules
+from config import Config
+from utils import clones, create_padding_mask, create_subsequent_mask
+
+
+class PositionalEncoding(nn.Module):
+    """
+    Implement the positional encoding as described in section 3.5 of the paper.
+    Adds positional information to the token embeddings.
+    """
+    def __init__(self, d_model: int, dropout: float, max_len: int = 5000):
+        """
+        Initialize positional encoding.
+        
+        Args:
+            d_model: Dimension of the model
+            dropout: Dropout rate
+            max_len: Maximum sequence length
+        """
+        super(PositionalEncoding, self).__init__()
+        self.dropout = nn.Dropout(p=dropout)
+        
+        # Create a matrix of shape (max_len, d_model)
+        pe = torch.zeros(max_len, d_model)
+        
+        # Create a vector of shape (max_len)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        
+        # Create a vector of shape (d_model)
+        div_term = torch.exp(
+            torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+        )
+        
+        # Apply sine to even indices and cosine to odd indices
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        
+        # Add batch dimension and transpose to shape (1, max_len, d_model)
+        pe = pe.unsqueeze(0)
+        
+        # Register buffer (not a parameter, but part of the module)
+        self.register_buffer('pe', pe)
+        
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Add positional encoding to the input embeddings.
+        
+        Args:
+            x: Input embeddings of shape (batch_size, seq_len, d_model)
+            
+        Returns:
+            Output with positional encoding added
+        """
+        # Add positional encoding to the input
+        x = x + self.pe[:, :x.size(1)]
+        
+        # Apply dropout
+        return self.dropout(x)
+
+
+class MultiHeadAttention(nn.Module):
+    """
+    Implement the multi-head attention mechanism as described in section 3.2.2 of the paper.
+    """
+    def __init__(self, d_model: int, n_heads: int, dropout: float):
+        """
+        Initialize multi-head attention.
+        
+        Args:
+            d_model: Dimension of the model
+            n_heads: Number of attention heads
+            dropout: Dropout rate
+        """
+        super(MultiHeadAttention, self).__init__()
+        
+        # Ensure d_model is divisible by n_heads
+        assert d_model % n_heads == 0, "d_model must be divisible by n_heads"
+        
+        # Store parameters
+        self.d_model = d_model
+        self.n_heads = n_heads
+        self.d_k = d_model // n_heads  # Dimension of key per head
+        self.d_v = d_model // n_heads  # Dimension of value per head
+        
+        # Linear projections
+        self.W_q = nn.Linear(d_model, d_model)  # Query projection
+        self.W_k = nn.Linear(d_model, d_model)  # Key projection
+        self.W_v = nn.Linear(d_model, d_model)  # Value projection
+        self.W_o = nn.Linear(d_model, d_model)  # Output projection
+        
+        # Dropout
+        self.dropout = nn.Dropout(p=dropout)
+        
+    def forward(
+        self, 
+        query: torch.Tensor, 
+        key: torch.Tensor, 
+        value: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        """
+        Apply multi-head attention.
+        
+        Args:
+            query: Query tensor of shape (batch_size, query_len, d_model)
+            key: Key tensor of shape (batch_size, key_len, d_model)
+            value: Value tensor of shape (batch_size, value_len, d_model)
+            mask: Optional mask tensor of shape (batch_size, 1, 1, key_len) or (batch_size, 1, query_len, key_len)
+            
+        Returns:
+            Output tensor of shape (batch_size, query_len, d_model)
+        """
+        batch_size = query.size(0)
+        
+        # Linear projections and split into h heads
+        # Shape: (batch_size, seq_len, n_heads, d_k) -> (batch_size, n_heads, seq_len, d_k)
+        q = self.W_q(query).view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
+        k = self.W_k(key).view(batch_size, -1, self.n_heads, self.d_k).transpose(1, 2)
+        v = self.W_v(value).view(batch_size, -1, self.n_heads, self.d_v).transpose(1, 2)
+        
+        # Apply attention
+        scores, attn = self.attention(q, k, v, mask)
+        
+        # Concatenate heads and apply final linear projection
+        # Shape: (batch_size, n_heads, seq_len, d_v) -> (batch_size, seq_len, d_model)
+        concat = scores.transpose(1, 2).contiguous().view(batch_size, -1, self.d_model)
+        output = self.W_o(concat)
+        
+        return output
+        
+    def attention(
+        self, 
+        query: torch.Tensor, 
+        key: torch.Tensor, 
+        value: torch.Tensor, 
+        mask: Optional[torch.Tensor] = None
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Compute scaled dot-product attention as described in section 3.2.1 of the paper.
+        
+        Args:
+            query: Query tensor of shape (batch_size, n_heads, query_len, d_k)
+            key: Key tensor of shape (batch_size, n_heads, key_len, d_k)
+            value: Value tensor of shape (batch_size, n_heads, value_len, d_v)
+            mask: Optional mask tensor of shape (batch_size, 1, 1, key_len) or (batch_size, 1, query_len, key_len)
+            
+        Returns:
+            Tuple of (output tensor of shape (batch_size, n_heads, query_len, d_v), 
+                     attention weights of shape (batch_size, n_heads, query_len, key_len))
+        """
+        # Get dimensions
+        d_k = query.size(-1)
+        
+        # Compute scaled dot product
+        # Shape: (batch_size, n_heads, query_len, key_len)
+        scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
+        
+        # Apply mask if provided
+        if mask is not None:
+            scores = scores.masked_fill(mask == 1, -1e9)
+        
+        # Apply softmax to get attention weights
+        attn = F.softmax(scores, dim=-1)
+        
+        # Apply dropout to attention weights
+        attn = self.dropout(attn)
+        
+        # Apply attention weights to values
+        # Shape: (batch_size, n_heads, query_len, d_v)
+        output = torch.matmul(attn, value)
+        
+        return output, attn
+
+
+class PositionwiseFeedforward(nn.Module):
+    """
+    Implement the position-wise feed-forward network as described in section 3.3 of the paper.
+    """
+    def __init__(self, d_model: int, d_ff: int, dropout: float):
+        """
+        Initialize position-wise feed-forward network.
+        
+        Args:
+            d_model: Dimension of the model
+            d_ff: Dimension of the feed-forward layer
+            dropout: Dropout rate
+        """
+        super(PositionwiseFeedforward, self).__init__()
+        
+        # Two linear transformations with a ReLU activation in between
+        self.linear1 = nn.Linear(d_model, d_ff)
+        self.linear2 = nn.Linear(d_ff, d_model)
+        
+        # Dropout
+        self.dropout = nn.Dropout(p=dropout)
+        
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Apply position-wise feed-forward network.
+        
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, d_model)
+            
+        Returns:
+            Output tensor of shape (batch_size, seq_len, d_model)
+        """
+        # First linear transformation with ReLU activation
+        x = F.relu(self.linear1(x))
+        
+        # Apply dropout
+        x = self.dropout(x)
+        
+        # Second linear transformation
+        x = self.linear2(x)
+        
+        return x
+
+
+class LayerNorm(nn.Module):
+    """
+    Layer normalization module as described in the paper.
+    """
+    def __init__(self, features: int, eps: float = 1e-6):
+        """
+        Initialize layer normalization.
+        
+        Args:
+            features: Number of features
+            eps: Small constant for numerical stability
+        """
+        super(LayerNorm, self).__init__()
+        
+        # Learnable parameters
+        self.a_2 = nn.Parameter(torch.ones(features))
+        self.b_2 = nn.Parameter(torch.zeros(features))
+        
+        # Epsilon for numerical stability
+        self.eps = eps
+        
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Apply layer normalization.
+        
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, features)
+            
+        Returns:
+            Normalized tensor of shape (batch_size, seq_len, features)
+        """
+        # Calculate mean and standard deviation
+        mean = x.mean(-1, keepdim=True)
+        std = x.std(-1, keepdim=True)
+        
+        # Normalize
+        x = (x - mean) / (std + self.eps)
+        
+        # Scale and shift
+        return self.a_2 * x + self.b_2
+
+
+class EncoderLayer(nn.Module):
+    """
+    Single layer of the encoder as described in section 3.1 of the paper.
+    """
+    def __init__(self, d_model: int, n_heads: int, d_ff: int, dropout: float):
+        """
+        Initialize encoder layer.
+        
+        Args:
+            d_model: Dimension of the model
+            n_heads: Number of attention heads
+            d_ff: Dimension of the feed-forward layer
+            dropout: Dropout rate
+        """
+        super(EncoderLayer, self).__init__()
+        
+        # Multi-head self-attention
+        self.self_attn = MultiHeadAttention(d_model, n_heads, dropout)
+        
+        # Position-wise feed-forward network
+        self.feed_forward = PositionwiseFeedforward(d_model, d_ff, dropout)
+        
+        # Layer normalization
+        self.norm1 = LayerNorm(d_model)
+        self.norm2 = LayerNorm(d_model)
+        
+        # Dropout
+        self.dropout = dropout
+        self.dropout_layer = nn.Dropout(p=dropout)
+        
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """
+        Process input through encoder layer.
+        
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, d_model)
+            mask: Mask tensor of shape (batch_size, 1, 1, seq_len)
+            
+        Returns:
+            Output tensor of shape (batch_size, seq_len, d_model)
+        """
+        # Self-attention with residual connection and layer normalization
+        # (Apply layer norm before sublayer as per paper section 5.4)
+        attn_output = self.self_attn(self.norm1(x), self.norm1(x), self.norm1(x), mask)
+        x = x + self.dropout_layer(attn_output)
+        
+        # Position-wise feed-forward with residual connection and layer normalization
+        ff_output = self.feed_forward(self.norm2(x))
+        x = x + self.dropout_layer(ff_output)
+        
+        return x
+
+
+class DecoderLayer(nn.Module):
+    """
+    Single layer of the decoder as described in section 3.1 of the paper.
+    """
+    def __init__(self, d_model: int, n_heads: int, d_ff: int, dropout: float):
+        """
+        Initialize decoder layer.
+        
+        Args:
+            d_model: Dimension of the model
+            n_heads: Number of attention heads
+            d_ff: Dimension of the feed-forward layer
+            dropout: Dropout rate
+        """
+        super(DecoderLayer, self).__init__()
+        
+        # Multi-head self-attention
+        self.self_attn = MultiHeadAttention(d_model, n_heads, dropout)
+        
+        # Multi-head cross-attention
+        self.cross_attn = MultiHeadAttention(d_model, n_heads, dropout)
+        
+        # Position-wise feed-forward network
+        self.feed_forward = PositionwiseFeedforward(d_model, d_ff, dropout)
+        
+        # Layer normalization
+        self.norm1 = LayerNorm(d_model)
+        self.norm2 = LayerNorm(d_model)
+        self.norm3 = LayerNorm(d_model)
+        
+        # Dropout
+        self.dropout = dropout
+        self.dropout_layer = nn.Dropout(p=dropout)
+        
+    def forward(
+        self, 
+        x: torch.Tensor, 
+        memory: torch.Tensor, 
+        src_mask: torch.Tensor, 
+        tgt_mask: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Process input through decoder layer.
+        
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, d_model)
+            memory: Output from encoder of shape (batch_size, src_seq_len, d_model)
+            src_mask: Source mask tensor of shape (batch_size, 1, 1, src_seq_len)
+            tgt_mask: Target mask tensor of shape (batch_size, 1, tgt_seq_len, tgt_seq_len)
+            
+        Returns:
+            Output tensor of shape (batch_size, seq_len, d_model)
+        """
+        # Self-attention with residual connection and layer normalization
+        # (Apply layer norm before sublayer as per paper section 5.4)
+        attn_output = self.self_attn(self.norm1(x), self.norm1(x), self.norm1(x), tgt_mask)
+        x = x + self.dropout_layer(attn_output)
+        
+        # Cross-attention with residual connection and layer normalization
+        attn_output = self.cross_attn(self.norm2(x), memory, memory, src_mask)
+        x = x + self.dropout_layer(attn_output)
+        
+        # Position-wise feed-forward with residual connection and layer normalization
+        ff_output = self.feed_forward(self.norm3(x))
+        x = x + self.dropout_layer(ff_output)
+        
+        return x
+
+
+class Encoder(nn.Module):
+    """
+    Encoder stack as described in section 3.1 of the paper.
+    """
+    def __init__(self, layer: EncoderLayer, N: int):
+        """
+        Initialize encoder stack.
+        
+        Args:
+            layer: Encoder layer to be stacked
+            N: Number of layers
+        """
+        super(Encoder, self).__init__()
+        
+        # Create a stack of N identical encoder layers
+        self.layers = clones(layer, N)
+        
+        # Layer normalization for the final output
+        self.norm = LayerNorm(layer.self_attn.d_model)
+        
+    def forward(self, x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+        """
+        Process input through encoder stack.
+        
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, d_model)
+            mask: Mask tensor of shape (batch_size, 1, 1, seq_len)
+            
+        Returns:
+            Output tensor of shape (batch_size, seq_len, d_model)
+        """
+        # Pass through each encoder layer
+        for layer in self.layers:
+            x = layer(x, mask)
+        
+        # Apply final layer normalization
+        return self.norm(x)
+
+
+class Decoder(nn.Module):
+    """
+    Decoder stack as described in section 3.1 of the paper.
+    """
+    def __init__(self, layer: DecoderLayer, N: int):
+        """
+        Initialize decoder stack.
+        
+        Args:
+            layer: Decoder layer to be stacked
+            N: Number of layers
+        """
+        super(Decoder, self).__init__()
+        
+        # Create a stack of N identical decoder layers
+        self.layers = clones(layer, N)
+        
+        # Layer normalization for the final output
+        self.norm = LayerNorm(layer.self_attn.d_model)
+        
+    def forward(
+        self, 
+        x: torch.Tensor, 
+        memory: torch.Tensor, 
+        src_mask: torch.Tensor, 
+        tgt_mask: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Process input through decoder stack.
+        
+        Args:
+            x: Input tensor of shape (batch_size, seq_len, d_model)
+            memory: Output from encoder of shape (batch_size, src_seq_len, d_model)
+            src_mask: Source mask tensor of shape (batch_size, 1, 1, src_seq_len)
+            tgt_mask: Target mask tensor of shape (batch_size, 1, tgt_seq_len, tgt_seq_len)
+            
+        Returns:
+            Output tensor of shape (batch_size, seq_len, d_model)
+        """
+        # Pass through each decoder layer
+        for layer in self.layers:
+            x = layer(x, memory, src_mask, tgt_mask)
+        
+        # Apply final layer normalization
+        return self.norm(x)
+
+
+class TransformerModel(nn.Module):
+    """
+    Full Transformer model as described in the paper.
+    """
+    def __init__(self, config: Config, src_vocab_size: int, tgt_vocab_size: int):
+        """
+        Initialize Transformer model.
+        
+        Args:
+            config: Configuration object
+            src_vocab_size: Size of source vocabulary
+            tgt_vocab_size: Size of target vocabulary
+        """
+        super(TransformerModel, self).__init__()
+        
+        # Get model parameters from config
+        model_params = config.get_model_params()
+        d_model = model_params['d_model']
+        n_heads = model_params['n_heads']
+        num_encoder_layers = model_params['num_encoder_layers']
+        num_decoder_layers = model_params['num_decoder_layers']
+        d_ff = model_params['dim_feedforward']
+        dropout = model_params['dropout']
+        max_seq_length = model_params['max_seq_length']
+        share_weights = model_params['share_weights']
+        
+        # Create embedding layers
+        self.src_embed = nn.Embedding(src_vocab_size, d_model)
+        self.tgt_embed = nn.Embedding(tgt_vocab_size, d_model)
+        
+        # Scale embeddings by sqrt(d_model) as mentioned in the paper
+        self.src_scale = math.sqrt(d_model)
+        self.tgt_scale = math.sqrt(d_model)
+        
+        # Positional encoding
+        self.pos_encoding = PositionalEncoding(d_model, dropout, max_seq_length)
+        
+        # Create encoder and decoder components
+        encoder_layer = EncoderLayer(d_model, n_heads, d_ff, dropout)
+        decoder_layer = DecoderLayer(d_model, n_heads, d_ff, dropout)
+        
+        self.encoder = Encoder(encoder_layer, num_encoder_layers)
+        self.decoder = Decoder(decoder_layer, num_decoder_layers)
+        
+        # Output projection
+        self.generator = nn.Linear(d_model, tgt_vocab_size)
+        
+        # Weight sharing between embedding layers and output projection
+        if share_weights:
+            self.generator.weight = self.tgt_embed.weight
+        
+        # Initialize parameters
+        self._init_parameters()
+        
+    def _init_parameters(self):
+        """
+        Initialize model parameters.
+        """
+        # Initialize parameters with Xavier uniform distribution
+        for p in self.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
+    
+    def forward(
+        self, 
+        src: torch.Tensor, 
+        tgt: torch.Tensor, 
+        src_mask: torch.Tensor, 
+        tgt_mask: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Process input through the full Transformer model.
+        
+        Args:
+            src: Source tensor of shape (batch_size, src_seq_len)
+            tgt: Target tensor of shape (batch_size, tgt_seq_len)
+            src_mask: Source mask tensor of shape (batch_size, 1, 1, src_seq_len)
+            tgt_mask: Target mask tensor of shape (batch_size, 1, tgt_seq_len, tgt_seq_len)
+            
+        Returns:
+            Output tensor of shape (batch_size, tgt_seq_len, tgt_vocab_size)
+        """
+        # Encode source sequence
+        memory = self.encode(src, src_mask)
+        
+        # Decode target sequence
+        output = self.decode(memory, src_mask, tgt, tgt_mask)
+        
+        # Generate final output logits
+        return self.generator(output)
+    
+    def encode(self, src: torch.Tensor, src_mask: torch.Tensor) -> torch.Tensor:
+        """
+        Encode source sequence.
+        
+        Args:
+            src: Source tensor of shape (batch_size, src_seq_len)
+            src_mask: Source mask tensor of shape (batch_size, 1, 1, src_seq_len)
+            
+        Returns:
+            Memory tensor of shape (batch_size, src_seq_len, d_model)
+        """
+        # Apply input embedding, scaling, and positional encoding
+        src_embedded = self.pos_encoding(self.src_embed(src) * self.src_scale)
+        
+        # Encode
+        return self.encoder(src_embedded, src_mask)
+    
+    def decode(
+        self, 
+        memory: torch.Tensor, 
+        src_mask: torch.Tensor, 
+        tgt: torch.Tensor, 
+        tgt_mask: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Decode target sequence.
+        
+        Args:
+            memory: Output from encoder of shape (batch_size, src_seq_len, d_model)
+            src_mask: Source mask tensor of shape (batch_size, 1, 1, src_seq_len)
+            tgt: Target tensor of shape (batch_size, tgt_seq_len)
+            tgt_mask: Target mask tensor of shape (batch_size, 1, tgt_seq_len, tgt_seq_len)
+            
+        Returns:
+            Decoded output tensor of shape (batch_size, tgt_seq_len, d_model)
+        """
+        # Apply target embedding, scaling, and positional encoding
+        tgt_embedded = self.pos_encoding(self.tgt_embed(tgt) * self.tgt_scale)
+        
+        # Decode
+        return self.decoder(tgt_embedded, memory, src_mask, tgt_mask)
+    
+    def create_masks(self, src: torch.Tensor, tgt: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Create masks for transformer model.
+        
+        Args:
+            src: Source tensor of shape (batch_size, src_seq_len)
+            tgt: Target tensor of shape (batch_size, tgt_seq_len)
+            
+        Returns:
+            Tuple of (source mask, target mask)
+        """
+        # Determine padding index (assuming 0)
+        pad_idx = 0
+        
+        # Create source padding mask
+        src_mask = create_padding_mask(src, pad_idx)
+        
+        # Create target mask (combining padding and subsequent masks)
+        tgt_padding_mask = create_padding_mask(tgt, pad_idx)
+        tgt_subsequent_mask = create_subsequent_mask(tgt.size(1)).to(tgt.device)
+        
+        # Combine masks (broadcasting to the right shape)
+        tgt_mask = tgt_padding_mask | tgt_subsequent_mask
+        
+        return src_mask, tgt_mask
+    
+    def beam_search(self, src: torch.Tensor, max_len: int, start_symbol: int, end_symbol: int = 2) -> torch.Tensor:
+        """
+        Perform beam search decoding for inference.
+        
+        Args:
+            src: Source tensor of shape (batch_size, src_seq_len)
+            max_len: Maximum length of output sequence
+            start_symbol: Start symbol index
+            end_symbol: End symbol index (default: 2)
+            
+        Returns:
+            Generated output sequence tensor of shape (batch_size, seq_len)
+        """
+        # Get device from source tensor
+        device = src.device
+        
+        # Get beam size from config (default to 4 if not in config)
+        beam_size = 4  # Will be overridden by actual config value
+        length_penalty = 0.6  # Will be overridden by actual config value
+        
+        # Try to get beam size and length penalty from global config
+        try:
+            from config import Config
+            cfg = Config()
+            inference_params = cfg.get_inference_params()
+            beam_size = inference_params.get('beam_size', beam_size)
+            length_penalty = inference_params.get('length_penalty', length_penalty)
+        except:
+            pass
+        
+        # Get batch size and encode the source sequence
+        batch_size = src.size(0)
+        src_mask = create_padding_mask(src, 0)
+        memory = self.encode(src, src_mask)
+        
+        # We'll process each batch item separately
+        generated_sequences = []
+        
+        for batch_idx in range(batch_size):
+            # Take the memory for this batch item and repeat it for beam size
+            batch_memory = memory[batch_idx:batch_idx+1].repeat(beam_size, 1, 1)
+            batch_src_mask = src_mask[batch_idx:batch_idx+1].repeat(beam_size, 1, 1, 1)
+            
+            # Initialize beams with start symbol
+            beams = torch.full((beam_size, 1), start_symbol, dtype=torch.long, device=device)
+            
+            # Initialize beam scores
+            beam_scores = torch.zeros(beam_size, device=device)
+            
+            # Flag to indicate which beams are completed
+            completed_beams = torch.zeros(beam_size, dtype=torch.bool, device=device)
+            
+            # Generate tokens one by one
+            for step in range(max_len - 1):
+                # Don't decode further for completed beams
+                if completed_beams.all():
+                    break
+                
+                # Create mask for current beams
+                beam_tgt_mask = create_subsequent_mask(beams.size(1)).to(device)
+                
+                # Decode one step for all beams
+                decoder_output = self.decode(batch_memory, batch_src_mask, beams, beam_tgt_mask)
+                
+                # Get next token predictions (last position)
+                logits = self.generator(decoder_output[:, -1])
+                
+                # Convert to log probabilities
+                log_probs = F.log_softmax(logits, dim=-1)
+                
+                # For completed beams, only the end_symbol should be considered
+                for b in range(beam_size):
+                    if completed_beams[b]:
+                        log_probs[b, :] = float('-inf')
+                        log_probs[b, end_symbol] = 0.0
+                
+                # Calculate scores for next tokens based on current beam scores
+                vocab_size = log_probs.size(1)
+                next_scores = beam_scores.unsqueeze(1) + log_probs
+                
+                # For first step, consider only single beam
+                if step == 0:
+                    # For first step, treat log_probs for first beam only
+                    next_scores = next_scores[0].unsqueeze(0)
+                
+                # Flatten scores to select top-k
+                flat_next_scores = next_scores.view(-1)
+                
+                # Select top-k scores and convert to beam indices and token indices
+                if step == 0:
+                    # For first step, select top-k from the first beam only
+                    top_scores, top_indices = flat_next_scores.topk(beam_size, dim=0)
+                    beam_indices = torch.zeros(beam_size, dtype=torch.long, device=device)
+                    token_indices = top_indices
+                else:
+                    # For subsequent steps, select top-k from all beams
+                    top_scores, top_indices = flat_next_scores.topk(beam_size, dim=0)
+                    beam_indices = top_indices // vocab_size
+                    token_indices = top_indices % vocab_size
+                
+                # Update beam scores
+                beam_scores = top_scores
+                
+                # Create new beams by appending selected tokens to selected beams
+                new_beams = []
+                for i in range(beam_size):
+                    beam_idx = beam_indices[i]
+                    token_idx = token_indices[i]
+                    
+                    # Update completed beams flag
+                    if token_idx == end_symbol:
+                        completed_beams[i] = True
+                    
+                    # Create new beam by appending token to selected beam
+                    new_beam = torch.cat([beams[beam_idx], token_idx.unsqueeze(0)], dim=0).unsqueeze(0)
+                    new_beams.append(new_beam)
+                
+                # Concatenate new beams
+                beams = torch.cat(new_beams, dim=0)
+            
+            # Apply length penalty
+            beam_lengths = torch.sum(beams != 0, dim=1).float()
+            normalized_scores = beam_scores / ((5 + beam_lengths) ** length_penalty / (5 + 1) ** length_penalty)
+            
+            # Select the best beam
+            best_beam_idx = normalized_scores.argmax()
+            best_beam = beams[best_beam_idx].unsqueeze(0)
+            
+            # Add to generated sequences
+            generated_sequences.append(best_beam)
+        
+        # Concatenate all batch results
+        return torch.cat(generated_sequences, dim=0)
+

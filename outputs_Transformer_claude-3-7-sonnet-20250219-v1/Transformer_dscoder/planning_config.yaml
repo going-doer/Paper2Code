@@ -1,0 +1,67 @@
+## config.yaml
+
+# Transformer Model Configuration
+
+# Model architecture parameters
+model:
+  base:
+    d_model: 512              # Dimension of model embeddings
+    n_heads: 8                # Number of attention heads
+    num_encoder_layers: 6     # Number of encoder layers
+    num_decoder_layers: 6     # Number of decoder layers
+    dim_feedforward: 2048     # Dimension of feed-forward layer
+    dropout: 0.1              # Dropout rate
+    max_seq_length: 5000      # Maximum sequence length
+    share_weights: true       # Share embedding weights with output projection
+  
+  big:
+    d_model: 1024             # Dimension of model embeddings
+    n_heads: 16               # Number of attention heads
+    num_encoder_layers: 6     # Number of encoder layers
+    num_decoder_layers: 6     # Number of decoder layers
+    dim_feedforward: 4096     # Dimension of feed-forward layer
+    dropout: 0.3              # Dropout rate for EN-DE (0.1 for EN-FR)
+    max_seq_length: 5000      # Maximum sequence length
+    share_weights: true       # Share embedding weights with output projection
+
+# Training parameters
+training:
+  optimizer: "adam"
+  beta1: 0.9
+  beta2: 0.98
+  epsilon: 1.0e-9
+  warmup_steps: 4000
+  label_smoothing: 0.1
+  batch_tokens: 25000         # Target batch size in tokens
+  base_steps: 100000          # Training steps for base model
+  big_steps: 300000           # Training steps for big model
+  checkpoint_interval: 10     # Save checkpoint every 10 minutes
+  average_checkpoints:
+    base: 5                   # Number of checkpoints to average for base model
+    big: 20                   # Number of checkpoints to average for big model
+
+# Inference parameters
+inference:
+  beam_size: 4
+  length_penalty: 0.6
+  max_length_factor: 50       # Maximum output length = input_length + max_length_factor
+
+# Data parameters
+data:
+  en_de:
+    source_lang: "en"
+    target_lang: "de"
+    train: "wmt14_en_de_train"
+    valid: "newstest2013"
+    test: "newstest2014"
+    vocab_size: 37000         # Shared BPE vocabulary
+    tokenization: "bpe"       # Byte-pair encoding
+  
+  en_fr:
+    source_lang: "en"
+    target_lang: "fr"
+    train: "wmt14_en_fr_train"
+    valid: "newstest2013"
+    test: "newstest2014"
+    vocab_size: 32000         # Word-piece vocabulary
+    tokenization: "wordpiece" # Word-piece encoding

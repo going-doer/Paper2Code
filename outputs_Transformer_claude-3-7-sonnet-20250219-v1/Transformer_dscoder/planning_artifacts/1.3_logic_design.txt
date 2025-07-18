@@ -1,0 +1,86 @@
+----------------------------------------
+[Required packages]
+- torch>=1.7.0
+- torchtext>=0.8.0
+- numpy>=1.19.0
+- tqdm>=4.50.0
+- sacrebleu>=1.5.0
+- sentencepiece>=0.1.94
+- matplotlib>=3.3.0
+- tensorboard>=2.4.0
+
+----------------------------------------
+[Required Other language third-party packages]
+- No third-party dependencies required
+
+----------------------------------------
+[Logic Analysis]
+- ['config.py', "Contains the Config class to store all hyperparameters and configuration settings for the Transformer model.\n\nClass:\n- Config: Stores configuration for model architecture, training, and evaluation\n  - __init__(model_size: str): Initialize configuration based on model size ('base' or 'big')\n  - get_model_params(): Returns dictionary of model architecture parameters\n  - get_training_params(): Returns dictionary of training parameters\n\nThe config will define:\n- Model architecture parameters (d_model, n_heads, num_layers, etc.)\n- Training parameters (learning rate, warmup steps, etc.)\n- Evaluation parameters (beam size, length penalty, etc.)\n- Data processing parameters (max sequence length, batch size, etc.)\n\nNo external dependencies besides standard Python libraries."]
+- ['utils.py', 'Utility functions used across the project.\n\nFunctions:\n- create_subsequent_mask(size: int) -> torch.Tensor: Creates mask for decoder self-attention\n- create_padding_mask(seq: torch.Tensor, pad_idx: int) -> torch.Tensor: Creates mask for padding tokens\n- label_smoothed_nll_loss(pred: torch.Tensor, target: torch.Tensor, epsilon: float) -> torch.Tensor: Implements label smoothing\n- get_lr_scheduler(optimizer: torch.optim.Optimizer, d_model: int, warmup_steps: int) -> function: Creates learning rate scheduler\n- save_checkpoint(model: torch.nn.Module, optimizer: torch.optim.Optimizer, epoch: int, path: str) -> None: Saves model checkpoint\n- load_checkpoint(path: str, model: torch.nn.Module, optimizer: torch.optim.Optimizer = None) -> dict: Loads model checkpoint\n- average_checkpoints(paths: List[str], model: torch.nn.Module) -> None: Averages model weights from multiple checkpoints\n\nImports:\n- torch\n- numpy\n- os\n- math']
+- ['data_processing.py', 'Handles data loading, preprocessing, tokenization, and batching.\n\nClass:\n- DataProcessor:\n  - __init__(config: Config): Initialize with configuration\n  - load_data(dataset_path: str) -> Tuple[DataLoader]: Load and prepare train/val/test data\n  - build_vocab(train_data: List) -> Tuple[Vocab]: Build source and target vocabularies\n  - tokenize(text: str) -> List[str]: Tokenize text\n  - apply_bpe(tokens: List[str]) -> List[str]: Apply byte-pair encoding\n  - batch_data(data: List) -> Iterator: Create batches of similar lengths\n  - create_masks(src: torch.Tensor, tgt: torch.Tensor) -> Tuple[torch.Tensor]: Create attention masks\n\nThis module will handle:\n- Downloading and extracting WMT14 datasets if not available\n- Tokenization using byte-pair encoding or word-piece encoding\n- Building vocabularies\n- Creating batches of similar sequence lengths\n- Creating attention masks for the transformer model\n\nImports:\n- torch\n- torchtext\n- sentencepiece\n- utils (create_padding_mask, create_subsequent_mask)\n- config (Config)']
+- ['model.py', 'Implements the Transformer architecture as described in the paper.\n\nClasses:\n- PositionalEncoding: Adds positional information to embeddings\n  - __init__(d_model: int, dropout: float, max_len: int)\n  - forward(x: torch.Tensor) -> torch.Tensor\n\n- MultiHeadAttention: Implements multi-head attention mechanism\n  - __init__(d_model: int, n_heads: int, dropout: float)\n  - forward(query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, mask: torch.Tensor) -> torch.Tensor\n  - attention(query: torch.Tensor, key: torch.Tensor, value: torch.Tensor, mask: torch.Tensor) -> Tuple[torch.Tensor]\n\n- PositionwiseFeedforward: Implements position-wise feed-forward network\n  - __init__(d_model: int, d_ff: int, dropout: float)\n  - forward(x: torch.Tensor) -> torch.Tensor\n\n- EncoderLayer: Single layer of the encoder\n  - __init__(d_model: int, n_heads: int, d_ff: int, dropout: float)\n  - forward(x: torch.Tensor, mask: torch.Tensor) -> torch.Tensor\n\n- DecoderLayer: Single layer of the decoder\n  - __init__(d_model: int, n_heads: int, d_ff: int, dropout: float)\n  - forward(x: torch.Tensor, memory: torch.Tensor, src_mask: torch.Tensor, tgt_mask: torch.Tensor) -> torch.Tensor\n\n- TransformerModel: Full transformer model\n  - __init__(config: Config, src_vocab_size: int, tgt_vocab_size: int)\n  - forward(src: torch.Tensor, tgt: torch.Tensor, src_mask: torch.Tensor, tgt_mask: torch.Tensor) -> torch.Tensor\n  - encode(src: torch.Tensor, src_mask: torch.Tensor) -> torch.Tensor\n  - decode(memory: torch.Tensor, src_mask: torch.Tensor, tgt: torch.Tensor, tgt_mask: torch.Tensor) -> torch.Tensor\n  - beam_search(src: torch.Tensor, max_len: int, start_symbol: int) -> torch.Tensor\n\nImports:\n- torch\n- math\n- copy\n- numpy\n- config (Config)\n- utils (for mask creation)']
+- ['train.py', 'Handles the training and validation loops for the Transformer model.\n\nClass:\n- Trainer:\n  - __init__(config: Config, model: TransformerModel, data_processor: DataProcessor): Initialize trainer\n  - train(train_data: DataLoader, val_data: DataLoader, epochs: int) -> None: Main training loop\n  - train_epoch(train_data: DataLoader) -> float: Train for one epoch\n  - validate(val_data: DataLoader) -> float: Validate model\n  - save_checkpoint(path: str) -> None: Save model checkpoint\n  - load_checkpoint(path: str) -> None: Load model checkpoint\n  - adjust_learning_rate(step: int) -> None: Adjust learning rate according to schedule\n\nImplements:\n- Adam optimizer with custom learning rate schedule\n- Label smoothing for training\n- Gradient clipping\n- Logging with tensorboard\n- Checkpoint saving and loading\n\nImports:\n- torch\n- tqdm\n- time\n- os\n- tensorboard\n- model (TransformerModel)\n- config (Config)\n- utils (label_smoothed_nll_loss, get_lr_scheduler, save_checkpoint, load_checkpoint)\n- data_processing (DataProcessor)']
+- ['evaluate.py', 'Handles evaluation and inference for the trained model.\n\nClass:\n- Evaluator:\n  - __init__(config: Config, model: TransformerModel, data_processor: DataProcessor): Initialize evaluator\n  - evaluate(test_data: DataLoader) -> dict: Evaluate model on test data\n  - translate_sentence(sentence: str) -> str: Translate a single sentence\n  - compute_bleu(references: List[str], hypotheses: List[str]) -> float: Compute BLEU score\n  - average_checkpoints(paths: List[str]) -> None: Average model weights from checkpoints\n\nImplements:\n- Beam search for decoding\n- BLEU score calculation using sacrebleu\n- Model averaging for evaluation\n- Length penalty during beam search\n\nImports:\n- torch\n- tqdm\n- sacrebleu\n- model (TransformerModel)\n- config (Config)\n- data_processing (DataProcessor)\n- utils (average_checkpoints)']
+- ['main.py', 'Entry point for running training and evaluation.\n\nFunctions:\n- train_model(config_path: str = None) -> None: Train the transformer model\n- evaluate_model(model_path: str, config_path: str = None) -> None: Evaluate the trained model\n- translate(model_path: str, sentence: str, config_path: str = None) -> str: Translate a single sentence\n- main(): Parse command line arguments and run appropriate function\n\nThis script will:\n- Parse command-line arguments\n- Initialize configuration\n- Set up data processing\n- Create and train model or load pre-trained model\n- Evaluate model performance\n- Allow for single sentence translation\n\nImports:\n- torch\n- argparse\n- os\n- config (Config)\n- model (TransformerModel)\n- data_processing (DataProcessor)\n- train (Trainer)\n- evaluate (Evaluator)']
+
+----------------------------------------
+[Task list]
+- config.py
+- utils.py
+- data_processing.py
+- model.py
+- train.py
+- evaluate.py
+- main.py
+
+----------------------------------------
+[Full API spec]
+
+
+----------------------------------------
+[Shared Knowledge]
+Several components and concepts are shared across multiple files in this implementation:
+
+1. Configuration Parameters:
+   - Model architecture parameters (d_model, n_heads, etc.) defined in config.py but used across model.py, train.py, and evaluate.py
+   - Training parameters (learning rate, warmup steps) used in both config.py and train.py
+   - Evaluation parameters (beam size, length penalty) shared between config.py and evaluate.py
+
+2. Masking Functions:
+   - Padding mask creation logic shared between data_processing.py and model.py
+   - Sequence masking for autoregressive decoding used in model.py and data_processing.py
+
+3. Vocabulary and Tokenization:
+   - Source and target vocabularies created in data_processing.py but used in model.py for embedding layers
+   - Special tokens (PAD, BOS, EOS) shared across data_processing.py, model.py, and evaluate.py
+
+4. Checkpoint Management:
+   - Model saving/loading functions in utils.py used by train.py and evaluate.py
+   - Checkpoint averaging logic shared between utils.py and evaluate.py
+
+5. Learning Rate Schedule:
+   - Custom learning rate adjustment function defined in utils.py and used in train.py
+   - Warmup steps and scaling factors shared between these files
+
+6. Label Smoothing:
+   - Implementation in utils.py used during training in train.py
+   - Epsilon parameter defined in config.py
+
+7. Model Architecture:
+   - The transformer architecture components (attention, feed-forward, etc.) are shared across encoder and decoder
+   - Weight sharing between embedding layer and final projection layer as mentioned in the paper
+
+----------------------------------------
+[Anything UNCLEAR]
+1. The paper doesn't provide specific details about the tokenization process beyond mentioning byte-pair encoding for English-German and word-piece for English-French. We might need to refer to additional sources to ensure the tokenization is correctly implemented.
+
+2. The exact implementation of label smoothing isn't detailed in the paper. We've assumed a standard implementation but might need to adjust if results differ.
+
+3. The warm-up learning rate schedule is described at a high level, but implementation details might require some experimentation for optimal results.
+
+4. The paper mentions averaging checkpoints for evaluation, but doesn't specify exactly how many checkpoints to save during training or at what intervals.
+
+5. The paper was trained on 8 P100 GPUs. Our implementation will need to be adapted to available resources, which might affect batch sizes and training times. Distributed training might be necessary for full reproduction if 8 GPUs aren't available.
+
+6. The exact pre-processing of the WMT14 dataset (filtering criteria, handling of special characters, etc.) is not fully specified in the paper.
+

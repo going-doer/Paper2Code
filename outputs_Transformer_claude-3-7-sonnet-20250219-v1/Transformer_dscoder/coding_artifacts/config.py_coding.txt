@@ -1,0 +1,204 @@
+I'll implement the `config.py` file according to the provided requirements, design, and configuration in `config.yaml`.
+
+## Code: config.py
+```python
+"""
+Configuration module for the Transformer model implementation.
+Contains the Config class to store all hyperparameters and configuration settings.
+"""
+import os
+import yaml
+from typing import Dict, Any, Optional
+
+
+class Config:
+    """
+    Configuration class for the Transformer model.
+    Stores parameters for model architecture, training, and evaluation.
+    """
+    def __init__(self, model_size: str = 'base', config_path: Optional[str] = None):
+        """
+        Initialize configuration based on model size ('base' or 'big')
+
+        Args:
+            model_size: Model size, either 'base' or 'big'
+            config_path: Path to config.yaml file (optional)
+        """
+        self.model_size = model_size
+        if model_size not in ['base', 'big']:
+            raise ValueError(f"Model size must be 'base' or 'big', got {model_size}")
+        
+        # Load configuration from YAML file
+        if config_path is None:
+            config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yaml')
+        
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+        
+        # Load model architecture parameters
+        model_config = config['model'][model_size]
+        self.d_model = model_config['d_model']
+        self.n_heads = model_config['n_heads']
+        self.num_encoder_layers = model_config['num_encoder_layers']
+        self.num_decoder_layers = model_config['num_decoder_layers']
+        self.dim_feedforward = model_config['dim_feedforward']
+        self.dropout = model_config['dropout']
+        self.max_seq_length = model_config['max_seq_length']
+        self.share_weights = model_config['share_weights']
+        
+        # Derived parameters
+        self.d_k = self.d_model // self.n_heads  # Dimension of key per head
+        self.d_v = self.d_model // self.n_heads  # Dimension of value per head
+        
+        # Load training parameters
+        self.optimizer = config['training']['optimizer']
+        self.beta1 = config['training']['beta1']
+        self.beta2 = config['training']['beta2']
+        self.epsilon = config['training']['epsilon']
+        self.warmup_steps = config['training']['warmup_steps']
+        self.label_smoothing = config['training']['label_smoothing']
+        self.batch_tokens = config['training']['batch_tokens']
+        
+        if self.model_size == 'base':
+            self.total_steps = config['training']['base_steps']
+            self.average_checkpoints = config['training']['average_checkpoints']['base']
+        else:
+            self.total_steps = config['training']['big_steps']
+            self.average_checkpoints = config['training']['average_checkpoints']['big']
+            
+        self.checkpoint_interval = config['training']['checkpoint_interval']
+        
+        # Load inference parameters
+        self.beam_size = config['inference']['beam_size']
+        self.length_penalty = config['inference']['length_penalty']
+        self.max_length_factor = config['inference']['max_length_factor']
+        
+        # Load data parameters (default to English-German)
+        self.data_config = config['data']['en_de']
+        
+        # Set device (will be determined at runtime)
+        self.device = 'cuda' if self._is_cuda_available() else 'cpu'
+        
+        # Learning rate setup - depends on d_model
+        self.learning_rate = None  # Will be calculated dynamically using scheduler
+        
+    def get_model_params(self) -> Dict[str, Any]:
+        """
+        Return a dictionary of model architecture parameters
+        
+        Returns:
+            Dictionary containing model architecture parameters
+        """
+        return {
+            'd_model': self.d_model,
+            'n_heads': self.n_heads,
+            'num_encoder_layers': self.num_encoder_layers,
+            'num_decoder_layers': self.num_decoder_layers,
+            'dim_feedforward': self.dim_feedforward,
+            'dropout': self.dropout,
+            'd_k': self.d_k,
+            'd_v': self.d_v,
+            'max_seq_length': self.max_seq_length,
+            'share_weights': self.share_weights
+        }
+    
+    def get_training_params(self) -> Dict[str, Any]:
+        """
+        Return a dictionary of training parameters
+        
+        Returns:
+            Dictionary containing training parameters
+        """
+        return {
+            'optimizer': self.optimizer,
+            'beta1': self.beta1,
+            'beta2': self.beta2,
+            'epsilon': self.epsilon,
+            'warmup_steps': self.warmup_steps,
+            'label_smoothing': self.label_smoothing,
+            'batch_tokens': self.batch_tokens,
+            'total_steps': self.total_steps,
+            'checkpoint_interval': self.checkpoint_interval,
+            'average_checkpoints': self.average_checkpoints,
+            'device': self.device
+        }
+    
+    def get_inference_params(self) -> Dict[str, Any]:
+        """
+        Return a dictionary of inference parameters
+        
+        Returns:
+            Dictionary containing inference parameters
+        """
+        return {
+            'beam_size': self.beam_size,
+            'length_penalty': self.length_penalty,
+            'max_length_factor': self.max_length_factor,
+            'device': self.device
+        }
+    
+    def get_data_params(self) -> Dict[str, Any]:
+        """
+        Return a dictionary of data parameters
+        
+        Returns:
+            Dictionary containing data parameters
+        """
+        return self.data_config
+    
+    def set_language_pair(self, language_pair: str) -> None:
+        """
+        Set the language pair for data configuration
+        
+        Args:
+            language_pair: Language pair code ('en_de' or 'en_fr')
+        """
+        if language_pair not in ['en_de', 'en_fr']:
+            raise ValueError(f"Language pair must be 'en_de' or 'en_fr', got {language_pair}")
+        
+        # Load configuration from YAML file
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yaml')
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+            
+        self.data_config = config['data'][language_pair]
+        
+        # Update dropout for EN-FR if using big model
+        if language_pair == 'en_fr' and self.model_size == 'big':
+            self.dropout = 0.1  # As mentioned in the paper for EN-FR big model
+    
+    def _is_cuda_available(self) -> bool:
+        """
+        Check if CUDA is available for GPU acceleration
+        
+        Returns:
+            Boolean indicating CUDA availability
+        """
+        try:
+            import torch
+            return torch.cuda.is_available()
+        except ImportError:
+            return False
+
+
+# For testing
+if __name__ == "__main__":
+    # Create configurations for base and big models
+    base_config = Config(model_size='base')
+    big_config = Config(model_size='big')
+    
+    # Print some configuration values
+    print("Base model parameters:")
+    print(f"d_model: {base_config.d_model}")
+    print(f"n_heads: {base_config.n_heads}")
+    print(f"dropout: {base_config.dropout}")
+    
+    print("\nBig model parameters:")
+    print(f"d_model: {big_config.d_model}")
+    print(f"n_heads: {big_config.n_heads}")
+    print(f"dropout: {big_config.dropout}")
+    
+    # Change language pair and check dropout for big model
+    big_config.set_language_pair('en_fr')
+    print(f"\nBig model dropout after setting language to EN-FR: {big_config.dropout}")
+```

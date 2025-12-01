@@ -1,0 +1,255 @@
+# Reproduction Plan for "Attention Is All You Need" (Transformer Paper)
+
+## Overview
+
+This plan outlines how to reproduce the Transformer architecture and experiments described in the paper. The Transformer is a novel sequence transduction model that relies entirely on self-attention mechanisms, dispensing with recurrence and convolutions.
+
+## Part 1: Transformer Architecture Implementation
+
+### 1. Model Architecture
+
+The Transformer follows an encoder-decoder architecture with the following specifications:
+
+#### 1.1 Overall Architecture
+- **Encoder**: Stack of N=6 identical layers
+- **Decoder**: Stack of N=6 identical layers
+- **Output**: Linear layer + softmax for next-token prediction
+- **Dimension**: All sub-layers output dimension d_model = 512
+
+#### 1.2 Encoder Components
+Each encoder layer has:
+- Multi-head self-attention sub-layer
+- Position-wise fully connected feed-forward network
+- Residual connections around each sub-layer + layer normalization
+
+#### 1.3 Decoder Components
+Each decoder layer has:
+- Masked multi-head self-attention sub-layer
+- Multi-head attention over encoder output
+- Position-wise fully connected feed-forward network
+- Residual connections around each sub-layer + layer normalization
+- Masking to prevent positions from attending to subsequent positions
+
+### 2. Key Components
+
+#### 2.1 Attention Mechanism
+
+**Scaled Dot-Product Attention**:
+- Formula: Attention(Q,K,V) = softmax(QK^T/√d_k)V
+- Inputs: Queries and keys of dimension d_k, values of dimension d_v
+- Scaling factor: 1/√d_k to prevent small gradients in softmax
+
+**Multi-Head Attention**:
+- Perform attention function h times in parallel
+- Parameters:
+  - Number of heads h = 8
+  - Dimension per head d_k = d_v = d_model/h = 64
+- Projection matrices:
+  - W_Q^i ∈ R^(d_model×d_k)
+  - W_K^i ∈ R^(d_model×d_k)
+  - W_V^i ∈ R^(d_model×d_v)
+  - W_O ∈ R^(hd_v×d_model)
+
+#### 2.2 Position-wise Feed-Forward Networks
+- Two linear transformations with ReLU activation:
+  - FFN(x) = max(0, xW_1 + b_1)W_2 + b_2
+- Parameters:
+  - Input and output dimensionality: d_model = 512
+  - Inner layer dimensionality: d_ff = 2048
+
+#### 2.3 Embeddings and Positional Encoding
+- Token embeddings: Learned embeddings of dimension d_model = 512
+- Positional encodings: Using sine and cosine functions
+  - PE(pos,2i) = sin(pos/10000^(2i/d_model))
+  - PE(pos,2i+1) = cos(pos/10000^(2i/d_model))
+- Position embeddings added to token embeddings
+- Embedding weights multiplied by √d_model
+- Weight sharing between embedding layers and pre-softmax linear transformation
+
+#### 2.4 Regularization Techniques
+- Residual dropout: Applied to each sub-layer output before addition and normalization, P_drop = 0.1
+- Embedding dropout: Applied to sums of embeddings and positional encodings
+- Label smoothing: ϵ_ls = 0.1
+
+## Part 2: Training and Evaluation
+
+### 1. Datasets
+
+#### 1.1 Machine Translation
+- **English-to-German**: WMT 2014 EN-DE dataset (~4.5M sentence pairs)
+  - Evaluation on newstest2014
+  - Development set: newstest2013
+- **English-to-French**: WMT 2014 EN-FR dataset (~36M sentence pairs)
+  - Evaluation on newstest2014
+
+#### 1.2 Preprocessing
+- Tokenization using byte-pair encoding (BPE)
+  - EN-DE: Shared vocabulary of ~37,000 tokens
+  - EN-FR: Word-piece vocabulary of 32,000 tokens
+
+### 2. Training Configuration
+
+#### 2.1 Base Model Hyperparameters
+- N = 6 layers for both encoder and decoder
+- d_model = 512
+- d_ff = 2048
+- h = 8 attention heads
+- d_k = d_v = 64
+- P_drop = 0.1
+- ϵ_ls = 0.1 (label smoothing)
+
+#### 2.2 Big Model Hyperparameters
+- N = 6 layers
+- d_model = 1024
+- d_ff = 4096
+- h = 16 attention heads
+- P_drop = 0.3 (EN-DE) or P_drop = 0.1 (EN-FR)
+
+#### 2.3 Training Settings
+- Batch size: ~25,000 source tokens and ~25,000 target tokens per batch
+- Adam optimizer: β1 = 0.9, β2 = 0.98, ε = 10^-9
+- Learning rate schedule:
+  - lr = d_model^(-0.5) * min(step_num^(-0.5), step_num * warmup_steps^(-1.5))
+  - warmup_steps = 4000
+- Training steps:
+  - Base model: 100,000 steps (~12 hours on 8 P100 GPUs)
+  - Big model: 300,000 steps (~3.5 days on 8 P100 GPUs)
+
+### 3. Inference and Evaluation
+
+#### 3.1 Decoding Strategy
+- Beam search with beam size = 4
+- Length penalty α = 0.6
+- Maximum output length = input length + 50, with early termination
+
+#### 3.2 Model Averaging
+- Base models: Average last 5 checkpoints (saved at 10-minute intervals)
+- Big models: Average last 20 checkpoints
+
+#### 3.3 Evaluation Metrics
+- BLEU score for machine translation
+- Expected scores:
+  - EN-DE: 27.3 BLEU (base), 28.4 BLEU (big)
+  - EN-FR: 38.1 BLEU (base), 41.8 BLEU (big)
+
+## Part 3: Implementation Plan Breakdown
+
+### Phase 1: Basic Implementation
+
+1. **Set up project structure and dependencies**
+   - PyTorch/TensorFlow
+   - Data processing libraries
+   - Evaluation tools (SACREBLEU for BLEU scoring)
+
+2. **Implement core Transformer components**
+   - Scaled dot-product attention
+   - Multi-head attention
+   - Position-wise feed-forward networks
+   - Positional encoding
+   - Embedding layers with weight sharing
+
+3. **Assemble encoder and decoder**
+   - Encoder layer with self-attention and feed-forward
+   - Decoder layer with masked self-attention, cross-attention, and feed-forward
+   - Full encoder and decoder with N=6 layers
+   - Attention masking for decoder
+
+4. **Implement full Transformer model**
+   - Connect encoder and decoder
+   - Add final linear layer and softmax
+   - Implement label smoothing
+
+### Phase 2: Training Infrastructure
+
+1. **Data preprocessing pipeline**
+   - Download WMT 2014 datasets (EN-DE, EN-FR)
+   - Implement BPE/word-piece tokenization
+   - Create batching logic (grouping by similar sequence length)
+
+2. **Training loop**
+   - Implement Adam optimizer with custom learning rate schedule
+   - Set up gradient clipping and optimization
+   - Implement dropout regularization
+   - Configure logging and checkpointing
+
+3. **Model initialization**
+   - Initialize model parameters according to paper specifications
+   - Weight sharing between embedding layers and pre-softmax projection
+
+### Phase 3: Inference and Evaluation
+
+1. **Beam search implementation**
+   - Implement beam search with configurable beam size
+   - Add length penalty
+   - Handle early termination
+
+2. **Checkpoint averaging**
+   - Implement logic to average model weights from checkpoints
+
+3. **Evaluation pipeline**
+   - Set up BLEU score computation
+   - Compare results with paper benchmarks
+
+### Phase 4: Experimentation and Validation
+
+1. **Base model training**
+   - Train on EN-DE dataset with base configuration
+   - Validate on newstest2013
+   - Test on newstest2014
+
+2. **Big model training** (if resources permit)
+   - Train with larger configuration
+   - Validate and test as above
+
+3. **Ablation studies** (optional but recommended)
+   - Vary number of attention heads
+   - Test different key/value dimensions
+   - Experiment with model size variations
+
+## Additional Implementation Details
+
+### Key Nuances to Consider
+
+1. **Attention Implementation Details**:
+   - Ensure proper masking in decoder self-attention
+   - Implement attention scaling correctly (1/√d_k)
+   - Handle padding tokens in attention calculations
+
+2. **Positional Encoding**:
+   - Implement sine/cosine functions properly
+   - Add to token embeddings before each encoder/decoder stack
+
+3. **Training Stability**:
+   - Monitor loss for instability
+   - Implement learning rate warmup carefully
+   - Consider gradient clipping if not mentioned in paper
+
+4. **Efficiency Considerations**:
+   - Implement attention batching efficiently
+   - Memory management for large model variants
+   - Parallelize training if possible
+
+### Potential Challenges
+
+1. **Computational Resources**:
+   - The paper used 8 P100 GPUs; adjust batch size/accumulation if fewer resources available
+   - Consider using mixed precision training if memory is limited
+
+2. **Hyperparameter Sensitivity**:
+   - Pay special attention to learning rate schedule
+   - Label smoothing implementation details
+
+3. **Dataset Preparation**:
+   - Ensure correct BPE implementation
+   - Handle large dataset sizes efficiently
+
+## Final Verification
+
+To validate successful reproduction:
+
+1. Train base model on EN-DE WMT 2014
+2. Evaluate on newstest2014 using beam search
+3. Compare BLEU scores (target: ~27.3 for base model)
+4. If resources permit, train and evaluate big model (target: ~28.4 BLEU)
+
+This plan should provide all the necessary details to implement the Transformer architecture as described in "Attention Is All You Need" and reproduce the paper's main results.

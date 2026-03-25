@@ -7,7 +7,7 @@ International Conference on Learning Representations (ICLR), 2026
 ![PaperCoder Overview](./assets/papercoder_overview.png)
 
 **PaperCoder** is the multi-agent LLM system introduced in **Paper2Code**, designed to transform a paper into a code repository.
-It follows a three-stage pipeline: planning, analysis, and code generation, each handled by specialized agents.  
+It follows a three-stage pipeline: planning, analysis, and code generation, each handled by specialized agents.
 Our method outperforms strong baselines on both Paper2Code and PaperBench and produces faithful, high-quality implementations.
 
 ---

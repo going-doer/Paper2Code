@@ -1,10 +1,12 @@
 # 📄 Paper2Code: Automating Code Generation from Scientific Papers in Machine Learning
 
+**Minju Seo, Jinheon Baek†, Seongyun Lee, and Sung Ju Hwang†** († denotes equal advising)  
+International Conference on Learning Representations (ICLR), 2026  
+📄 [Read the paper](https://arxiv.org/abs/2504.17192)  
+
 ![PaperCoder Overview](./assets/papercoder_overview.png)
 
-📄 [Read the paper on arXiv](https://arxiv.org/abs/2504.17192)
-
-**PaperCoder** is a multi-agent LLM system that transforms paper into a code repository.
+**PaperCoder** is the multi-agent LLM system introduced in **Paper2Code**, designed to transform a paper into a code repository.
 It follows a three-stage pipeline: planning, analysis, and code generation, each handled by specialized agents.  
 Our method outperforms strong baselines on both Paper2Code and PaperBench and produces faithful, high-quality implementations.
 
@@ -21,6 +23,7 @@ Our method outperforms strong baselines on both Paper2Code and PaperBench and pr
 
 ## ⚡ Quick Start
 - Note: The following command runs example paper ([Attention Is All You Need](https://arxiv.org/abs/1706.03762)).  
+- For more setup options, including LaTeX-based inputs and PDF-to-JSON conversion, see [📚 Detailed Setup Instructions](#-detailed-setup-instructions).
 
 ### Using OpenAI API
 - 💵 Estimated cost for using o3-mini: $0.50–$0.70
@@ -61,10 +64,11 @@ outputs
 ### 🛠️ Environment Setup
 
 - 💡 To use the `o3-mini` version, make sure you have the latest `openai` package installed.
+- We recommend using a Python virtual environment before installing dependencies.
 - 📦 Install only what you need:
-  - For OpenAI API: `openai`
-  - For open-source models: `vllm`
-      - If you encounter any issues installing vLLM, please refer to the [official vLLM repository](https://github.com/vllm-project/vllm).
+  - For OpenAI API, install `openai`.
+  - For open-source models, install `vllm`.
+  - If you encounter any issues installing vLLM, please refer to the [official vLLM repository](https://github.com/vllm-project/vllm).
 
 
 ```bash

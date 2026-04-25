@@ -2,3 +2,6 @@ openai>=1.65.4
 vllm>=0.6.4.post1
 transformers>=4.46.3
 tiktoken>=0.9.0
+requests>=2.31.0
+huggingface_hub>=0.23.0
+pymupdf>=1.24.0

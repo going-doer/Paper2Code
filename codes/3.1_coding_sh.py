@@ -1,10 +1,10 @@
-from openai import OpenAI
 import json
 import os
 from tqdm import tqdm
 import sys
 import copy
 from utils import extract_planning, content_to_json, extract_code_from_content, print_response, print_log_cost, load_accumulated_cost, save_accumulated_cost, read_python_files
+from providers import build_client, chat_complete, add_provider_args
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -16,9 +16,10 @@ parser.add_argument('--pdf_json_path', type=str) # json format
 parser.add_argument('--pdf_latex_path', type=str) # latex format
 parser.add_argument('--output_dir',type=str, default="")
 parser.add_argument('--output_repo_dir',type=str, default="")
+add_provider_args(parser)
 
 args    = parser.parse_args()
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+client = build_client(provider=args.provider, api_key=args.api_key)
 
 paper_name = args.paper_name
 gpt_version = args.gpt_version
@@ -27,18 +28,19 @@ pdf_json_path = args.pdf_json_path
 pdf_latex_path = args.pdf_latex_path
 output_dir = args.output_dir
 output_repo_dir = args.output_repo_dir
+provider = args.provider
 
 if paper_format == "JSON":
-    with open(f'{pdf_json_path}') as f:
+    with open(f'{pdf_json_path}', encoding='utf-8') as f:
         paper_content = json.load(f)
 elif paper_format == "LaTeX":
-    with open(f'{pdf_latex_path}') as f:
+    with open(f'{pdf_latex_path}', encoding='utf-8') as f:
         paper_content = f.read()
 else:
     print(f"[ERROR] Invalid paper format. Please select either 'JSON' or 'LaTeX.")
     sys.exit(0)
 
-with open(f'{output_dir}/planning_config.yaml') as f: 
+with open(f'{output_dir}/planning_config.yaml', encoding='utf-8') as f: 
     config_yaml = f.read()
 
 context_lst = extract_planning(f'{output_dir}/planning_trajectories.json')
@@ -53,9 +55,9 @@ done_file_dict = {}
 code_msg = [
     {"role": "system", "content": f"""You are an expert researcher and software engineer with a deep understanding of experimental design and reproducibility in scientific research.
 You will receive configuration file named "config.yaml", and implmented code repository. 
-Your task is to write a Bash script that can run the given repository from scratch. The script should create and activate the required environment, install all dependencies, and include the commands needed to execute the main file or entry point. Make sure the script is self-contained and can be executed without any manual setup.
-     
-Write code with triple quoto."""}]
+Your task is to write a PowerShell script (for Windows) that can run the given repository from scratch. The script should create and activate the required conda/virtual environment, install all dependencies, and include the commands needed to execute the main file or entry point. Make sure the script is self-contained and can be executed without any manual setup on Windows using PowerShell.
+
+Write code with triple quote."""}]
 
 def get_write_msg(todo_file_name, done_file_lst): 
     code_files = ""
@@ -102,18 +104,10 @@ Next, you must write only the "{todo_file_name}".
 
 
 def api_call(msg):
-    if "o3-mini" in gpt_version or "o4-mini" in gpt_version:
-        completion = client.chat.completions.create(
-            model=gpt_version, 
-            reasoning_effort="high",
-            messages=msg
-        )
-    else:
-        completion = client.chat.completions.create(
-            model=gpt_version, 
-            messages=msg
-        )
-    return completion
+    return chat_complete(
+        client, provider, gpt_version, msg,
+        reasoning_effort="high" if "o3" in gpt_version or "o4" in gpt_version else None,
+    )
     
 
 artifact_output_dir=f'{output_dir}/coding_artifacts'
@@ -130,7 +124,7 @@ for todo_idx, todo_file_name in enumerate(tqdm(todo_file_lst)):
 
 
 total_accumulated_cost = load_accumulated_cost(f"{output_dir}/accumulated_cost.json")
-for todo_idx, todo_file_name in enumerate(["reproduce.sh"]):
+for todo_idx, todo_file_name in enumerate(["reproduce.ps1"]):
     responses = []
     trajectories = copy.deepcopy(code_msg)
 
@@ -144,15 +138,13 @@ for todo_idx, todo_file_name in enumerate(["reproduce.sh"]):
     trajectories.extend(instruction_msg)
 
     completion = api_call(trajectories)
-    # print(completion.choices[0].message)
-    
     # response
-    completion_json = json.loads(completion.model_dump_json())
+    completion_json = completion
     responses.append(completion_json)
 
     # trajectories
-    message = completion.choices[0].message
-    trajectories.append({'role': message.role, 'content': message.content})
+    message = completion_json["choices"][0]["message"]
+    trajectories.append({'role': message['role'], 'content': message['content']})
 
     done_file_lst.append(todo_file_name)
 
@@ -168,21 +160,22 @@ for todo_idx, todo_file_name in enumerate(["reproduce.sh"]):
     total_accumulated_cost = temp_total_accumulated_cost
 
     # save artifacts
-    with open(f'{artifact_output_dir}/{save_todo_file_name}_coding.txt', 'w') as f:
+    with open(f'{artifact_output_dir}/{save_todo_file_name}_coding.txt', 'w', encoding='utf-8') as f:
         f.write(completion_json['choices'][0]['message']['content'])
 
 
     # extract code save 
-    code = extract_code_from_content(message.content)
+    content = message['content']
+    code = extract_code_from_content(content)
     if len(code) == 0:
-        code = message.content 
+        code = content
 
     done_file_dict[todo_file_name] = code
     if save_todo_file_name != todo_file_name:
-        todo_file_dir = '/'.join(todo_file_name.split("/")[:-1])
-        os.makedirs(f"{output_repo_dir}/{todo_file_dir}", exist_ok=True)
+        todo_file_dir = os.path.join(*todo_file_name.replace("\\", "/").split("/")[:-1])
+        os.makedirs(os.path.join(output_repo_dir, todo_file_dir), exist_ok=True)
 
-    with open(f"{output_repo_dir}/{todo_file_name}", 'w') as f:
+    with open(os.path.join(output_repo_dir, *todo_file_name.replace("\\", "/").split("/")), 'w', encoding='utf-8') as f:
         f.write(code)
 
 save_accumulated_cost(f"{output_dir}/accumulated_cost.json", total_accumulated_cost)

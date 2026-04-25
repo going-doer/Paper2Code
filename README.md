@@ -99,22 +99,6 @@ That single command:
 | ``cohere`` | Yes | ``COHERE_API_KEY`` | [dashboard.cohere.com](https://dashboard.cohere.com) |
 | ``cloudflare`` | Yes | ``CLOUDFLARE_API_KEY`` + ``CLOUDFLARE_ACCOUNT_ID`` | [dash.cloudflare.com](https://dash.cloudflare.com) |
 
-*GitHub Models requires a GitHub account; generous free quota available.
-
-### Recommended free models per provider
-
-| Provider | Model |
-|---|---|
-| ``openrouter`` | ``inclusionai/ling-2.6-flash:free``, ``deepseek/deepseek-r1:free``, ``qwen/qwen3-235b-a22b:free`` |
-| ``groq`` | ``llama-3.3-70b-versatile``, ``qwen/qwen3-32b`` |
-| ``cerebras`` | ``llama-3.3-70b``, ``qwen3-235b`` |
-| ``gemini`` | ``gemini-2.5-flash``, ``gemini-2.5-pro`` |
-| ``mistral`` | ``mistral-large-latest``, ``ministral-8b-latest`` |
-| ``github`` | ``gpt-4.1``, ``o3``, ``deepseek-r1`` |
-| ``sambanova`` | ``Meta-Llama-3.3-70B-Instruct`` |
-| ``cohere`` | ``command-r-plus``, ``command-a-03-2025`` |
-| ``cloudflare`` | ``@cf/meta/llama-3.3-70b-instruct-fp8-fast`` |
-
 ---
 
 ## Setting API Keys
@@ -361,4 +345,4 @@ This repository is a Windows and multi-provider implementation of the original *
 > International Conference on Learning Representations (ICLR), 2026.
 > [arXiv:2504.17192](https://arxiv.org/abs/2504.17192) · [github.com/going-doer/Paper2Code](https://github.com/going-doer/Paper2Code)
 
-All credit for the PaperCoder architecture, benchmark, and evaluation methodology belongs to the original authors. This fork adds Windows compatibility, one-command automation, and multi-provider support — the science is entirely theirs.
+All credit for the PaperCoder architecture, benchmark, and evaluation methodology belongs to the original authors. This fork adds Windows compatibility, one-command automation, and multi-provider support. The science is entirely theirs.

@@ -4,8 +4,8 @@ import argparse
 import re
 import sys
 
-from openai import OpenAI
 from utils import read_python_files, content_to_json, extract_planning
+from providers import build_client, chat_complete, add_provider_args, is_reasoning_model
 
 
 def parse_and_apply_changes(responses, debug_dir, save_num=1):
@@ -101,6 +101,12 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--output_repo_dir",
+        type=str,
+        required=True,
+        help="Directory containing the generated repository to debug.",
+    )
+    parser.add_argument(
         "--paper_name",
         type=str,
         required=True,
@@ -119,11 +125,12 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="Backup index appended as .<save_num>.bak when saving modified files.",
     )
+    add_provider_args(parser)
     return parser.parse_args()
 
 
 args = parse_args()
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+client = build_client(provider=args.provider, api_key=args.api_key)
 
 if not os.path.exists(args.error_file_name):
     raise FileNotFoundError(f"Error file not found: {args.error_file_name}")
@@ -173,11 +180,18 @@ if os.path.exists(config_path):
         config_yaml = f.read()
     codes += f"```yaml\n## File name: config.yaml\n{config_yaml}\n```\n\n"
         
-reproduce_path = os.path.join(debug_dir, "reproduce.sh")
+reproduce_path = os.path.join(debug_dir, "reproduce.ps1")
 if os.path.exists(reproduce_path):
     with open(reproduce_path, "r", encoding="utf-8") as f:
         reproduce_sh = f.read()
-    codes += f"```bash\n## File name: reproduce.sh\n{reproduce_sh}\n```\n\n"
+    codes += f"```powershell\n## File name: reproduce.ps1\n{reproduce_sh}\n```\n\n"
+else:
+    # Fallback: also check for legacy reproduce.sh
+    reproduce_path_sh = os.path.join(debug_dir, "reproduce.sh")
+    if os.path.exists(reproduce_path_sh):
+        with open(reproduce_path_sh, "r", encoding="utf-8") as f:
+            reproduce_sh = f.read()
+        codes += f"```bash\n## File name: reproduce.sh\n{reproduce_sh}\n```\n\n"
 
 # --------------------------------------------------
 # Build debugging prompt
@@ -245,13 +259,15 @@ result = model(input_data)
 """,
     },
 ]
-response = client.chat.completions.create(
+response = chat_complete(
+    client,
+    provider=args.provider,
     model=args.model,
     messages=msg,
-    reasoning_effort="high",
+    reasoning_effort="high" if is_reasoning_model(args.model) else None,
 )
 
-answer = response.choices[0].message.content
+answer = response["choices"][0]["message"]["content"]
 # print("===== RAW MODEL ANSWER =====")
 # print(answer)
 

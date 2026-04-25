@@ -20,13 +20,13 @@ def main(args):
     input_json_path = args.input_json_path
     output_json_path = args.output_json_path 
 
-    with open(f'{input_json_path}') as f:
+    with open(f'{input_json_path}', encoding='utf-8') as f:
         data = json.load(f)
 
     cleaned_data = remove_spans(data)
 
     print(f"[SAVED] {output_json_path}")
-    with open(output_json_path, 'w') as f:
+    with open(output_json_path, 'w', encoding='utf-8') as f:
         json.dump(cleaned_data, f)
 
 

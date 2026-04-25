@@ -1,10 +1,10 @@
-from openai import OpenAI
 import json
 from tqdm import tqdm
 import argparse
 import os
 import sys
 from utils import print_response, print_log_cost, load_accumulated_cost, save_accumulated_cost
+from providers import build_client, chat_complete, add_provider_args
 
 parser = argparse.ArgumentParser()
 
@@ -14,10 +14,11 @@ parser.add_argument('--paper_format',type=str, default="JSON", choices=["JSON", 
 parser.add_argument('--pdf_json_path', type=str) # json format
 parser.add_argument('--pdf_latex_path', type=str) # latex format
 parser.add_argument('--output_dir',type=str, default="")
+add_provider_args(parser)
 
 args    = parser.parse_args()
 
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+client = build_client(provider=args.provider, api_key=args.api_key)
 
 paper_name = args.paper_name
 gpt_version = args.gpt_version
@@ -25,13 +26,14 @@ paper_format = args.paper_format
 pdf_json_path = args.pdf_json_path
 pdf_latex_path = args.pdf_latex_path
 output_dir = args.output_dir
+provider = args.provider
 
 
 if paper_format == "JSON":
-    with open(f'{pdf_json_path}') as f:
+    with open(f'{pdf_json_path}', encoding='utf-8') as f:
         paper_content = json.load(f)
 elif paper_format == "LaTeX":
-    with open(f'{pdf_latex_path}') as f:
+    with open(f'{pdf_latex_path}', encoding='utf-8') as f:
         paper_content = f.read()
 else:
     print(f"[ERROR] Invalid paper format. Please select either 'JSON' or 'LaTeX.")
@@ -214,19 +216,10 @@ training:
     }]
 
 def api_call(msg, gpt_version):
-    if "o3-mini" in gpt_version:
-        completion = client.chat.completions.create(
-            model=gpt_version, 
-            reasoning_effort="high",
-            messages=msg
-        )
-    else:
-        completion = client.chat.completions.create(
-            model=gpt_version, 
-            messages=msg
-        )
-
-    return completion 
+    return chat_complete(
+        client, provider, gpt_version, msg,
+        reasoning_effort="high" if "o3" in gpt_version or "o4" in gpt_version else None,
+    )
 
 responses = []
 trajectories = []
@@ -247,9 +240,9 @@ for idx, instruction_msg in enumerate([plan_msg, file_list_msg, task_list_msg, c
     trajectories.extend(instruction_msg)
 
     completion = api_call(trajectories, gpt_version)
-    
-    # response
-    completion_json = json.loads(completion.model_dump_json())
+
+    # response (chat_complete always returns a normalised dict)
+    completion_json = completion
 
     # print and logging
     print_response(completion_json)
@@ -259,8 +252,8 @@ for idx, instruction_msg in enumerate([plan_msg, file_list_msg, task_list_msg, c
     responses.append(completion_json)
 
     # trajectories
-    message = completion.choices[0].message
-    trajectories.append({'role': message.role, 'content': message.content})
+    message = completion["choices"][0]["message"]
+    trajectories.append({'role': message['role'], 'content': message['content']})
 
 
 # save
@@ -268,8 +261,8 @@ save_accumulated_cost(f"{output_dir}/accumulated_cost.json", total_accumulated_c
 
 os.makedirs(output_dir, exist_ok=True)
 
-with open(f'{output_dir}/planning_response.json', 'w') as f:
+with open(f'{output_dir}/planning_response.json', 'w', encoding='utf-8') as f:
     json.dump(responses, f)
 
-with open(f'{output_dir}/planning_trajectories.json', 'w') as f:
+with open(f'{output_dir}/planning_trajectories.json', 'w', encoding='utf-8') as f:
     json.dump(trajectories, f)

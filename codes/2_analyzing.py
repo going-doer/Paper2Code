@@ -1,9 +1,9 @@
-from openai import OpenAI
 import json
 import os
 from tqdm import tqdm
 import sys
 from utils import extract_planning, content_to_json, print_response, print_log_cost, load_accumulated_cost, save_accumulated_cost
+from providers import build_client, chat_complete, add_provider_args
 import copy
 
 import argparse
@@ -16,10 +16,11 @@ parser.add_argument('--paper_format',type=str, default="JSON", choices=["JSON", 
 parser.add_argument('--pdf_json_path', type=str) # json format
 parser.add_argument('--pdf_latex_path', type=str) # latex format
 parser.add_argument('--output_dir',type=str, default="")
+add_provider_args(parser)
 
 args    = parser.parse_args()
 
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+client = build_client(provider=args.provider, api_key=args.api_key)
 
 paper_name = args.paper_name
 gpt_version = args.gpt_version
@@ -27,26 +28,27 @@ paper_format = args.paper_format
 pdf_json_path = args.pdf_json_path
 pdf_latex_path = args.pdf_latex_path
 output_dir = args.output_dir
+provider = args.provider
     
 if paper_format == "JSON":
-    with open(f'{pdf_json_path}') as f:
+    with open(f'{pdf_json_path}', encoding='utf-8') as f:
         paper_content = json.load(f)
 elif paper_format == "LaTeX":
-    with open(f'{pdf_latex_path}') as f:
+    with open(f'{pdf_latex_path}', encoding='utf-8') as f:
         paper_content = f.read()
 else:
     print(f"[ERROR] Invalid paper format. Please select either 'JSON' or 'LaTeX.")
     sys.exit(0)
 
 
-with open(f'{output_dir}/planning_config.yaml') as f: 
+with open(f'{output_dir}/planning_config.yaml', encoding='utf-8') as f: 
     config_yaml = f.read()
 
 context_lst = extract_planning(f'{output_dir}/planning_trajectories.json')
 
 # 0: overview, 1: detailed, 2: PRD
 if os.path.exists(f'{output_dir}/task_list.json'):
-    with open(f'{output_dir}/task_list.json') as f:
+    with open(f'{output_dir}/task_list.json', encoding='utf-8') as f:
         task_list = json.load(f)
 else:
     task_list = content_to_json(context_lst[2])
@@ -136,18 +138,10 @@ You DON'T need to provide the actual code yet; focus on a thorough, clear analys
 
 
 def api_call(msg):
-    if "o3-mini" in gpt_version:
-        completion = client.chat.completions.create(
-            model=gpt_version, 
-            reasoning_effort="high",
-            messages=msg
-        )
-    else:
-        completion = client.chat.completions.create(
-            model=gpt_version, 
-            messages=msg
-        )
-    return completion
+    return chat_complete(
+        client, provider, gpt_version, msg,
+        reasoning_effort="high" if "o3" in gpt_version or "o4" in gpt_version else None,
+    )
 
 
 artifact_output_dir=f'{output_dir}/analyzing_artifacts'
@@ -170,34 +164,31 @@ for todo_file_name in tqdm(todo_file_lst):
     instruction_msg = get_write_msg(todo_file_name, logic_analysis_dict[todo_file_name])
     trajectories.extend(instruction_msg)
         
-    completion = api_call(trajectories)
-    
     # response
-    completion_json = json.loads(completion.model_dump_json())
+    completion_json = api_call(trajectories)
     responses.append(completion_json)
-    
+
     # trajectories
-    message = completion.choices[0].message
-    trajectories.append({'role': message.role, 'content': message.content})
+    message = completion_json["choices"][0]["message"]
+    trajectories.append({'role': message['role'], 'content': message['content']})
 
     # print and logging
     print_response(completion_json)
     temp_total_accumulated_cost = print_log_cost(completion_json, gpt_version, current_stage, output_dir, total_accumulated_cost)
     total_accumulated_cost = temp_total_accumulated_cost
 
-    # save
-    with open(f'{artifact_output_dir}/{todo_file_name}_simple_analysis.txt', 'w') as f:
+    # save (use flat name to avoid subdirectory issues)
+    save_todo_file_name = todo_file_name.replace("/", "_")
+    with open(f'{artifact_output_dir}/{save_todo_file_name}_simple_analysis.txt', 'w', encoding='utf-8') as f:
         f.write(completion_json['choices'][0]['message']['content'])
-
 
     done_file_lst.append(todo_file_name)
 
     # save for next stage(coding)
-    todo_file_name = todo_file_name.replace("/", "_") 
-    with open(f'{output_dir}/{todo_file_name}_simple_analysis_response.json', 'w') as f:
+    with open(f'{output_dir}/{save_todo_file_name}_simple_analysis_response.json', 'w', encoding='utf-8') as f:
         json.dump(responses, f)
 
-    with open(f'{output_dir}/{todo_file_name}_simple_analysis_trajectories.json', 'w') as f:
+    with open(f'{output_dir}/{save_todo_file_name}_simple_analysis_trajectories.json', 'w', encoding='utf-8') as f:
         json.dump(trajectories, f)
 
 save_accumulated_cost(f"{output_dir}/accumulated_cost.json", total_accumulated_cost)

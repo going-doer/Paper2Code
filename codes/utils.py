@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 
 def extract_planning(trajectories_json_file_path):
-    with open(trajectories_json_file_path) as f:
+    with open(trajectories_json_file_path, encoding='utf-8') as f:
         traj = json.load(f)
 
     context_lst = []
@@ -239,17 +239,31 @@ def cal_cost(response_json, model_name):
     
     prompt_tokens = response_json["usage"]["prompt_tokens"]
     completion_tokens = response_json["usage"]["completion_tokens"]
-    cached_tokens = response_json["usage"]["prompt_tokens_details"].get("cached_tokens", 0)
+    prompt_tokens_details = response_json["usage"].get("prompt_tokens_details") or {}
+    cached_tokens = (prompt_tokens_details.get("cached_tokens") or 0) if isinstance(prompt_tokens_details, dict) else 0
 
     # input token = (prompt_tokens - cached_tokens)
     actual_input_tokens = prompt_tokens - cached_tokens
     output_tokens = completion_tokens
 
+    if model_name not in model_cost:
+        # Unknown / non-OpenAI model — report tokens but not dollar cost
+        return {
+            'model_name': model_name,
+            'actual_input_tokens': actual_input_tokens,
+            'input_cost': 0.0,
+            'cached_tokens': cached_tokens,
+            'cached_input_cost': 0.0,
+            'output_tokens': output_tokens,
+            'output_cost': 0.0,
+            'total_cost': 0.0,
+        }
+
     cost_info = model_cost[model_name]
 
-    input_cost = (actual_input_tokens / 1_000_000) * cost_info['input']
-    cached_input_cost = (cached_tokens / 1_000_000) * cost_info['cached_input']
-    output_cost = (output_tokens / 1_000_000) * cost_info['output']
+    input_cost = (actual_input_tokens / 1_000_000) * (cost_info['input'] or 0)
+    cached_input_cost = (cached_tokens / 1_000_000) * (cost_info['cached_input'] or 0)
+    output_cost = (output_tokens / 1_000_000) * (cost_info['output'] or 0)
 
     total_cost = input_cost + cached_input_cost + output_cost
 
@@ -369,6 +383,7 @@ def read_all_files(directory, allowed_ext, is_print=True):
     for root, _, files in os.walk(directory):  # Recursively traverse directories
         for filename in files:
             relative_path = os.path.relpath(os.path.join(root, filename), directory)  # Preserve directory structure
+            relative_path = relative_path.replace("\\", "/")  # Normalize to forward slashes on Windows
 
             # print(f"fn: {filename}\tdirectory: {directory}")
             _file_name, ext = os.path.splitext(filename)
@@ -376,7 +391,7 @@ def read_all_files(directory, allowed_ext, is_print=True):
             is_skip = False
             if len(directory) < len(root):
                 root2 = root[len(directory)+1:]
-                for dirname in root2.split("/"):
+                for dirname in root2.replace("\\", "/").split("/"):
                     if dirname.startswith("."):
                         is_skip = True
                         break
@@ -399,7 +414,7 @@ def read_all_files(directory, allowed_ext, is_print=True):
                 if file_size > 204800: # > 200KB 
                     print(f"[BIG] {filepath} {file_size}")
 
-                with open(filepath, "r") as file: # encoding="utf-8"
+                with open(filepath, "r", encoding="utf-8", errors="replace") as file: # encoding="utf-8"
                     all_files_content[relative_path] = file.read()
             except Exception as e:
                 print(e)
@@ -416,6 +431,7 @@ def read_python_files(directory):
         for filename in files:
             if filename.endswith(".py"):  # Check if file has .py extension
                 relative_path = os.path.relpath(os.path.join(root, filename), directory)  # Preserve directory structure
+                relative_path = relative_path.replace("\\", "/")  # Normalize to forward slashes on Windows
                 with open(os.path.join(root, filename), "r", encoding="utf-8") as file:
                     python_files_content[relative_path] = file.read()
     

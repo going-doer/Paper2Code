@@ -40,23 +40,23 @@ pdf_latex_path = args.pdf_latex_path
 output_dir = args.output_dir
     
 if paper_format == "JSON":
-    with open(f'{pdf_json_path}') as f:
+    with open(f'{pdf_json_path}', encoding='utf-8') as f:
         paper_content = json.load(f)
 elif paper_format == "LaTeX":
-    with open(f'{pdf_latex_path}') as f:
+    with open(f'{pdf_latex_path}', encoding='utf-8') as f:
         paper_content = f.read()
 else:
     print(f"[ERROR] Invalid paper format. Please select either 'JSON' or 'LaTeX.")
     sys.exit(0)
 
-with open(f'{output_dir}/planning_config.yaml') as f: 
+with open(f'{output_dir}/planning_config.yaml', encoding='utf-8') as f: 
     config_yaml = f.read()
 
 context_lst = extract_planning(f'{output_dir}/planning_trajectories.json')
 
 # 0: overview, 1: detailed, 2: PRD
 if os.path.exists(f'{output_dir}/task_list.json'):
-    with open(f'{output_dir}/task_list.json') as f:
+    with open(f'{output_dir}/task_list.json', encoding='utf-8') as f:
         task_list = json.load(f)
 else:
     task_list = content_to_json(context_lst[2])
@@ -212,16 +212,16 @@ for todo_file_name in tqdm(todo_file_lst):
     trajectories.append({'role': 'assistant', 'content': completion})
 
 
-    # save
-    with open(f'{artifact_output_dir}/{todo_file_name}_simple_analysis.txt', 'w', encoding='utf-8') as f:
+    # save (use flat name to avoid subdirectory issues)
+    save_todo_file_name = todo_file_name.replace("/", "_")
+    with open(f'{artifact_output_dir}/{save_todo_file_name}_simple_analysis.txt', 'w', encoding='utf-8') as f:
         f.write(completion)
 
     done_file_lst.append(todo_file_name)
 
     # save for next stage(coding)
-    todo_file_name = todo_file_name.replace("/", "_") 
-    with open(f'{output_dir}/{todo_file_name}_simple_analysis_response.json', 'w', encoding='utf-8') as f:
+    with open(f'{output_dir}/{save_todo_file_name}_simple_analysis_response.json', 'w', encoding='utf-8') as f:
         json.dump(responses, f)
 
-    with open(f'{output_dir}/{todo_file_name}_simple_analysis_trajectories.json', 'w', encoding='utf-8') as f:
+    with open(f'{output_dir}/{save_todo_file_name}_simple_analysis_trajectories.json', 'w', encoding='utf-8') as f:
         json.dump(trajectories, f)

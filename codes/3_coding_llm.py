@@ -43,16 +43,16 @@ output_repo_dir = args.output_repo_dir
 
     
 if paper_format == "JSON":
-    with open(f'{pdf_json_path}') as f:
+    with open(f'{pdf_json_path}', encoding='utf-8') as f:
         paper_content = json.load(f)
 elif paper_format == "LaTeX":
-    with open(f'{pdf_latex_path}') as f:
+    with open(f'{pdf_latex_path}', encoding='utf-8') as f:
         paper_content = f.read()
 else:
     print(f"[ERROR] Invalid paper format. Please select either 'JSON' or 'LaTeX.")
     sys.exit(0)
 
-with open(f'{output_dir}/planning_config.yaml') as f: 
+with open(f'{output_dir}/planning_config.yaml', encoding='utf-8') as f: 
     config_yaml = f.read()
 
 context_lst = extract_planning(f'{output_dir}/planning_trajectories.json')
@@ -254,8 +254,8 @@ for todo_idx, todo_file_name in enumerate(tqdm(todo_file_lst)):
 
     done_file_dict[todo_file_name] = code
     if save_todo_file_name != todo_file_name:
-        todo_file_dir = '/'.join(todo_file_name.split("/")[:-1])
-        os.makedirs(f"{output_repo_dir}/{todo_file_dir}", exist_ok=True)
+        todo_file_dir = os.path.join(*todo_file_name.replace("\\", "/").split("/")[:-1])
+        os.makedirs(os.path.join(output_repo_dir, todo_file_dir), exist_ok=True)
 
-    with open(f"{output_repo_dir}/{todo_file_name}", 'w', encoding='utf-8') as f:
+    with open(os.path.join(output_repo_dir, *todo_file_name.replace("\\", "/").split("/")), 'w', encoding='utf-8') as f:
         f.write(code)

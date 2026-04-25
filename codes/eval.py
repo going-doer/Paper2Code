@@ -1,22 +1,38 @@
-from openai import OpenAI
 import json
 import os
 import sys
 import argparse
 from utils import read_python_files, extract_planning, content_to_json, \
         num_tokens_from_messages, read_all_files, extract_json_from_string, get_now_str, print_log_cost
+from providers import build_client, chat_complete, add_provider_args
 
-client = OpenAI(api_key = os.environ["OPENAI_API_KEY"])
+_client = None
+_provider = "openai"
 
 def api_call(request_json):
-    completion = client.chat.completions.create(**request_json)
-    return completion
+    """Thin wrapper kept for backward compat; uses the providers module."""
+    messages = request_json["messages"]
+    model    = request_json["model"]
+    n        = request_json.get("n", 1)
+    temperature = request_json.get("temperature", None)
+    reasoning_effort = request_json.get("reasoning_effort", None)
+    # chat_complete handles n>1 looping for providers that don't support it
+    return chat_complete(
+        _client, _provider, model, messages,
+        n=n,
+        temperature=temperature,
+        reasoning_effort=reasoning_effort,
+    )
 
 def main(args):
 
+    global _client, _provider
+    _client   = build_client(provider=args.provider, api_key=args.api_key)
+    _provider = args.provider
+
     paper_name = args.paper_name
     pdf_json_path = args.pdf_json_path
-    output_dir = args.output_dir  
+    output_dir = args.output_dir
     target_repo_dir = args.target_repo_dir
     eval_result_dir = args.eval_result_dir
     gpt_version = args.gpt_version
@@ -28,7 +44,7 @@ def main(args):
     gold_repo_dir = args.gold_repo_dir
 
     # paper
-    with open(f'{pdf_json_path}') as f:
+    with open(f'{pdf_json_path}', encoding='utf-8') as f:
         paper_json = json.load(f)
     
     codes = ""
@@ -37,13 +53,13 @@ def main(args):
         target_files_dict = read_python_files(target_repo_dir)
 
         # configuration
-        with open(f'{output_dir}/planning_config.yaml') as f: 
+        with open(f'{output_dir}/planning_config.yaml', encoding='utf-8') as f: 
             config_yaml = f.read()
         
         context_lst = extract_planning(f'{output_dir}/planning_trajectories.json')
 
         if os.path.exists(f'{output_dir}/task_list.json'):
-            with open(f'{output_dir}/task_list.json') as f:
+            with open(f'{output_dir}/task_list.json', encoding='utf-8') as f:
                 task_list = json.load(f)
         else:
             task_list = content_to_json(context_lst[2])
@@ -61,7 +77,7 @@ def main(args):
             codes += f"```## File name: {file_name}\n{code}\n```\n\n" 
 
 
-    prompt = open(f"{data_dir}/prompts/{eval_type}.txt").read()
+    prompt = open(f"{data_dir}/prompts/{eval_type}.txt", encoding='utf-8').read()
     
     cur_prompt = prompt.replace('{{Paper}}', f"{paper_json}").replace('{{Code}}', codes)
     
@@ -73,7 +89,7 @@ def main(args):
         gold_cnt = 0
         if len(args.selected_file_path) > 0:
             selected_file_lst = []
-            with open(args.selected_file_path) as f:
+            with open(args.selected_file_path, encoding='utf-8') as f:
                 selected_file_lst = f.readlines()
             
             for s_idx in range(len(selected_file_lst)):
@@ -113,31 +129,24 @@ def main(args):
         sys.exit(0)
     
 
-    if "o3-mini" in gpt_version:
-        if generated_n > 8:
-            print(f"[WARNING] o3-mini does not support n > 8. Setting generated_n to 8.")
-            generated_n = 8
-
+    from providers import is_reasoning_model
+    if is_reasoning_model(gpt_version):
         request_json = {
-                "model": gpt_version, 
+                "model": gpt_version,
                 "messages": msg,
                 "reasoning_effort": "high",
                 "n": generated_n
         }
     else:
         request_json = {
-                "model": gpt_version, 
-                "messages": msg, 
+                "model": gpt_version,
+                "messages": msg,
                 "temperature": 1,
-                "frequency_penalty": 0,
-                "presence_penalty": 0,
-                "stop": None,
-                "n": generated_n # 10
+                "n": generated_n
         }
-        
-    completion = api_call(request_json)
-    completion_json = json.loads(completion.model_dump_json())
-        
+
+    completion_json = api_call(request_json)
+
     score_key = "score"
     rationale_key = "critique_list"
 
@@ -226,27 +235,27 @@ def main(args):
 if __name__ == '__main__':
 
     argparser = argparse.ArgumentParser()
-    
+
     argparser.add_argument('--paper_name', type=str)
     argparser.add_argument('--pdf_json_path', type=str)
     argparser.add_argument('--data_dir',type=str, default="../data")
 
     argparser.add_argument('--output_dir',type=str)
-    
+
     argparser.add_argument('--target_repo_dir', type=str)
     argparser.add_argument('--gold_repo_dir', type=str, default="")
     argparser.add_argument('--eval_result_dir',type=str)
-    
+
     argparser.add_argument('--eval_type', type=str, default="ref_free", choices=["ref_free", "ref_based"])
 
     argparser.add_argument('--generated_n', type=int, default=8)
     argparser.add_argument('--gpt_version', type=str, default="o3-mini")
 
-    argparser.add_argument('--selected_file_path', type=str, default="") 
+    argparser.add_argument('--selected_file_path', type=str, default="")
     argparser.add_argument('--papercoder', action="store_true")
-    
-    
-    
+
+    add_provider_args(argparser)
+
     args = argparser.parse_args()
     main(args)
 
